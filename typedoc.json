@@ -1,0 +1,6 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./types/index.d.ts"],
+  "out": "docs",
+  "name": "MiniZinc JavaScript"
+}

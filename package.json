@@ -1,0 +1,43 @@
+{
+  "name": "minizinc",
+  "version": "4.0.0",
+  "description": "JavaScript API for MiniZinc",
+  "types": "types/index.d.ts",
+  "main": "dist/minizinc.mjs",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "node": {
+        "require": "./dist/minizinc-node.cjs",
+        "default": "./dist/minizinc-node.mjs"
+      },
+      "require": "./dist/minizinc.cjs",
+      "default": "./dist/minizinc.mjs"
+    }
+  },
+  "scripts": {
+    "test": "rollup -c --environment TEST && jest",
+    "dev": "rollup -w -c",
+    "build": "rollup -c",
+    "docs": "typedoc"
+  },
+  "files": [
+    "dist/minizinc*",
+    "types/**/*.d.ts"
+  ],
+  "author": "Jason Nguyen <jason.nguyen@monash.edu>",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "@el3um4s/rollup-plugin-terser": "^1.0.2",
+    "@rollup/plugin-alias": "^4.0.2",
+    "@rollup/plugin-commonjs": "^23.0.2",
+    "@rollup/plugin-replace": "^5.0.1",
+    "@rollup/plugin-url": "^8.0.1",
+    "jest": "^29.2.2",
+    "rollup": "^3.2.5",
+    "rollup-plugin-copy": "^3.4.0",
+    "typedoc": "^0.23.19",
+    "web-worker": "^1.2.0"
+  }
+}
