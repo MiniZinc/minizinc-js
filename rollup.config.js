@@ -7,7 +7,7 @@ import path from "path";
 
 const testing = process.env.TEST;
 const production = !process.env.ROLLUP_WATCH && !testing;
-const minizincInstallDir = process.env.MZN_INSTALL_DIR || ".";
+const minizincInstallDir = process.env.MZN_WASM_DIR || ".";
 
 const browser = (output, src) => ({
   input: "src/browser.js",

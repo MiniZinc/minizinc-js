@@ -171,5 +171,7 @@ disable this behaviour.
 
 1. Run `npm install` to install dependencies.
 2. Place the `bin/` folder of the WebAssembly build of MiniZinc inside this directory.
+   Alternatively set the `MZN_WASM_DIR` environment variable to the installation directory of the
+   Webassembly build of MiniZinc.
 3. Run `npm run build` to build the package. The built files are in the `dist/` directory.
 4. Run `npm run docs` to build the documentation. The output files are in the `docs/` directory.

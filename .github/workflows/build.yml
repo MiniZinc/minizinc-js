@@ -19,8 +19,7 @@ jobs:
           MZNARCH: wasm
       - name: Get MiniZinc Revision
         id: get-minizinc-rev
-        run: |
-          echo "::set-output name=rev::$(git rev-parse HEAD)"
+        run: echo "rev=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
       - name: Cache MiniZinc Build
         id: cache
         uses: actions/cache@v3
@@ -50,6 +49,9 @@ jobs:
     name: Build, test and release minizinc-js
     runs-on: ubuntu-latest
     needs: [minizinc]
+    env:
+      MZN_WASM_DIR: ${{ github.workspace }}/minizinc
+      MZN_NODE_BINARY: ${{ github.workspace }}/native/bin/minizinc
     steps:
       - uses: actions/checkout@v3
       - name: Fetch MiniZinc
@@ -57,6 +59,10 @@ jobs:
         with:
           name: minizinc
           path: ${{ github.workspace }}/minizinc
+      - name: Fetch MiniZinc image
+        uses: docker://minizinc/minizinc:edge
+        with:
+          args: sh -c 'mkdir -p $GITHUB_WORKSPACE/native && cp -r /usr/local/* $GITHUB_WORKSPACE/native'
       - uses: actions/setup-node@v3
         with:
           node-version: lts/*
@@ -64,12 +70,8 @@ jobs:
         run: npm ci
       - name: Build package
         run: npm run build
-        env:
-          MZN_INSTALL_DIR: ${{ github.workspace }}/minizinc
       - name: Run tests
         run: npm test
-        env:
-          MZN_INSTALL_DIR: ${{ github.workspace }}/minizinc
       - name: Build docs
         run: npm run docs
       - name: Create package

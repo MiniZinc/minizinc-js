@@ -2,5 +2,14 @@ const MiniZinc = require("../dist/test-minizinc-node.cjs");
 
 const { commonTests } = require("./tests.cjs");
 
-commonTests(MiniZinc);
+beforeAll(async () => {
+  await MiniZinc.init({
+    minizinc: process.env.MZN_NODE_BINARY || "minizinc",
+  });
+});
 
+afterAll(() => {
+  MiniZinc.shutdown();
+});
+
+commonTests(MiniZinc);
