@@ -8,7 +8,12 @@ jobs:
     name: Build wasm version of MiniZinc
     runs-on: ubuntu-latest
     container: emscripten/emsdk
+    outputs:
+      cache-key: ${{ steps.get-cache-key.outputs.key }}
     steps:
+      - name: Workaround for https://github.com/actions/runner/issues/2033
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
       - uses: actions/checkout@v3
         with:
           repository: "minizinc/libminizinc"
@@ -17,15 +22,15 @@ jobs:
         run: ./download_vendor
         env:
           MZNARCH: wasm
-      - name: Get MiniZinc Revision
-        id: get-minizinc-rev
-        run: echo "rev=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+      - name: Get MiniZinc cache key
+        id: get-cache-key
+        run: echo "key=minizinc-$(git rev-parse HEAD)-${{ hashFiles('vendor/version.json') }}" >> $GITHUB_OUTPUT
       - name: Cache MiniZinc Build
         id: cache
         uses: actions/cache@v3
         with:
           path: minizinc
-          key: minizinc-${{ steps.get-minizinc-rev.outputs.rev }}-${{ hashFiles('vendor/version.json') }}
+          key: ${{ steps.get-cache-key.outputs.key }}
       - name: Configure MiniZinc
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -54,7 +59,14 @@ jobs:
       MZN_NODE_BINARY: ${{ github.workspace }}/native/bin/minizinc
     steps:
       - uses: actions/checkout@v3
+      - name: Cache MiniZinc
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: minizinc
+          key: ${{ needs.minizinc.outputs.cache-key }}
       - name: Fetch MiniZinc
+        if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/download-artifact@v3
         with:
           name: minizinc
@@ -62,7 +74,7 @@ jobs:
       - name: Fetch MiniZinc image
         uses: docker://minizinc/minizinc:edge
         with:
-          args: sh -c 'mkdir -p $GITHUB_WORKSPACE/native && cp -r /usr/local/* $GITHUB_WORKSPACE/native'
+          args: sh -c "mkdir -p \$GITHUB_WORKSPACE/native && cp -r /usr/local/* \$GITHUB_WORKSPACE/native"
       - uses: actions/setup-node@v3
         with:
           node-version: lts/*

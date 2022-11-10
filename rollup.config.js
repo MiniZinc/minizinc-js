@@ -17,11 +17,6 @@ const browser = (output, src) => ({
   },
   plugins: [
     production && terser(),
-    copy({
-      targets: [
-        { src: ["bin/minizinc.data", "bin/minizinc.wasm"], dest: "dist" },
-      ],
-    }),
     replace({
       URL_BASE: src || "document.currentScript.src",
       preventAssignment: true,
@@ -41,6 +36,17 @@ const worker = (output) => ({
         {
           find: "minizinc-bin",
           replacement: path.join(minizincInstallDir, "/bin/minizinc.js"),
+        },
+      ],
+    }),
+    copy({
+      targets: [
+        {
+          src: [
+            path.join(minizincInstallDir, "bin/minizinc.data"),
+            path.join(minizincInstallDir, "bin/minizinc.wasm"),
+          ],
+          dest: "dist",
         },
       ],
     }),
