@@ -17,7 +17,18 @@ jobs:
         run: ./download_vendor
         env:
           MZNARCH: wasm
+      - name: Get MiniZinc Revision
+        id: get-minizinc-rev
+        run: |
+          echo "::set-output name=rev::$(git rev-parse HEAD)"
+      - name: Cache MiniZinc Build
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: minizinc
+          key: minizinc-${{ steps.get-minizinc-rev.outputs.rev }}-${{ hashFiles('vendor/version.json') }}
       - name: Configure MiniZinc
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           emcmake cmake -S . -B build \
             -DCMAKE_FIND_ROOT_PATH="/" \
@@ -27,6 +38,7 @@ jobs:
             -DOsiCBC_ROOT="$GITHUB_WORKSPACE/vendor/cbc" \
             -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/minizinc"
       - name: Build MiniZinc
+        if: steps.cache.outputs.cache-hit != 'true'
         run: cmake --build build --config Release --target install -j 2
       - name: Upload package artifact
         uses: actions/upload-artifact@v3
