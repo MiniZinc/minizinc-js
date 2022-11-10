@@ -74,7 +74,7 @@ jobs:
       - name: Fetch MiniZinc image
         uses: docker://minizinc/minizinc:edge
         with:
-          args: sh -c "mkdir -p \$GITHUB_WORKSPACE/native && cp -r /usr/local/* \$GITHUB_WORKSPACE/native"
+          args: sh -c "mkdir -p $GITHUB_WORKSPACE/native && cp -v -r /usr/local/* $GITHUB_WORKSPACE/native"
       - uses: actions/setup-node@v3
         with:
           node-version: lts/*
