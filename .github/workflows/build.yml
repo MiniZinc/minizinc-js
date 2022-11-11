@@ -175,6 +175,11 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Inject version selector script and favicon into head
         run: find ./docs -type f -name '*.html' -exec sh -c 'sed -i "s#</head>#<script src=\"$(realpath --relative-to={} versions.js)\"></script><link rel=\"icon\" type=\"image/png\" href=\"$(realpath --relative-to={} minizinc.png)\" /></head>#" {}' \;
+      - name: Set package usages to point to edge
+        if: ${{ github.ref_name == 'develop' }}
+        run: |
+          sed -i 's#/minizinc/dist/#/minizinc@edge/dist/#g' docs/index.html
+          sed -i 's/npm install minizinc/npm install minizinc@edge/g' docs/index.html
       - name: Publish documentation
         if: ${{ github.event_name != 'pull_request' }}
         uses: peaceiris/actions-gh-pages@v3

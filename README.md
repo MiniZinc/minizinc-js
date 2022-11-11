@@ -1,6 +1,9 @@
 JavaScript interface for MiniZinc
 =================================
 
+[![Edge documentation](https://img.shields.io/badge/docs-edge-orange)](https://js.minizinc.dev/docs/develop)
+[![Edge package](https://img.shields.io/npm/v/minizinc/edge?color=orange)](https://www.npmjs.com/package/minizinc)
+
 This package provides a JavaScript API for [MiniZinc](https://minizinc.dev)
 for use in web browsers using WebAssembly, or in NodeJS using a native
 installation of MiniZinc.
@@ -33,7 +36,7 @@ Using ECMAScript modules:
 </script>
 ```
 
-Using the traditional script:
+Using a traditional script:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/minizinc/dist/minizinc.js"></script>
@@ -57,31 +60,48 @@ Using the traditional script:
 
 ### Self-hosting WebAssembly files
 
-Three files must be hosted from the same directory:
+If you're using a bundler, you can add the library to your project:
 
-- `dist/minizinc-worker.js`
-- `dist/minizinc.wasm`
-- `dist/minizinc.data`
+```sh
+npm install minizinc
+```
 
-The URL of the `minizinc-worker.js` script must be passed as the argument to
-a call to `MiniZinc.init(url);` if the files are not located next to the
-`minizinc.js` script (or the bundled script if using a bundler). See the section
-on initialisation below for more information.
+Then import it with:
+
+```js
+import * as MiniZinc from 'minizinc';
+```
+
+These three files need to be served by your webserver (found in `node_modules/minizinc/dist`):
+
+- `minizinc-worker.js`
+- `minizinc.wasm`
+- `minizinc.data`
+
+If you place them alongside your bundled script, they should be found automatically.
+Otherwise, their URLs can be specified during [initialisation](#initialisation).
 
 ### In NodeJS
 
-```js
-import { Model } from 'minizinc';
-const model = new Model();
-model.addFile('test.mzn');
-model.solve({
-  options: {
-    solver: 'gecode'
-  }
-}).then(result => {
-  console.log(result);
-});
+This requires an existing [installation of MiniZinc](https://github.com/MiniZinc/MiniZincIDE/releases).
+
+Add the library with:
+
+```sh
+npm install minizinc
 ```
+
+Then import it with:
+
+```js
+// If using ESM
+import * as MiniZinc from 'minizinc';
+// If using CommonJS
+const MiniZinc = require('minizinc');
+```
+
+If you have added MiniZinc to your `PATH`, it will be found automatically.
+Otherwise, you can specify the executable path during [initialisation](#initialisation).
 
 ## Usage
 
@@ -95,11 +115,12 @@ MiniZinc executable if using NodeJS).
 In the browser:
 
 ```js
-// Note that `minizinc.wasm` and `minizinc.data` will be loaded from
-// `http://localhost:3000/path/to/minizinc.wasm` and
-// `http://localhost:3000/path/to/minizinc.data` respectively
 MiniZinc.init({
-  workerURL: 'http://localhost:3000/path/to/my-own-worker.js'
+  // If omitted, searches for minizinc-worker.js next to the minizinc library script
+  workerURL: 'http://localhost:3000/path/to/my-own-worker.js',
+  // If these are omitted, searches next to the worker script
+  wasmURL: 'http://localhost:3000/path/to/minizinc.wasm',
+  dataURL: 'http://localhost:3000/path/to/minizinc.data'
 }).then(() => {
   console.log('Ready');
 });
@@ -126,6 +147,8 @@ The main entrypoint for using the library is through the `Model` class:
 const model = new MiniZinc.Model();
 // Add a file with a given name and string contents
 model.addFile('test.mzn', 'var 1..3: x; int: y;');
+// If you're using NodeJS, you can add files from the filesystem directly
+model.addFile('test.mzn');
 // Add model code from a string
 model.addString('int: z;');
 // Add data in DZN format
@@ -175,3 +198,10 @@ disable this behaviour.
    WebAssembly build of MiniZinc.
 3. Run `npm run build` to build the package. The built files are in the `dist/` directory.
 4. Run `npm run docs` to build the documentation. The output files are in the `docs/` directory.
+
+## Testing
+
+When testing, the [`web-worker`](https://www.npmjs.com/package/web-worker) library is used to emulate Web Worker
+support in NodeJS. This allows us to test both the browser version using WebAssembly, as well as the native version.
+
+Run `npm test` to run tests using [Jest](https://jestjs.io).
