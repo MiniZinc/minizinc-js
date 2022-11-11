@@ -2,6 +2,7 @@
   "name": "minizinc",
   "version": "4.0.0",
   "description": "JavaScript API for MiniZinc",
+  "homepage": "https://js.minizinc.dev",
   "types": "types/index.d.ts",
   "main": "dist/minizinc.mjs",
   "type": "module",
@@ -28,6 +29,10 @@
   ],
   "author": "Jason Nguyen <jason.nguyen@monash.edu>",
   "license": "MPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MiniZinc/minizinc-js.git"
+  },
   "devDependencies": {
     "@el3um4s/rollup-plugin-terser": "^1.0.2",
     "@rollup/plugin-alias": "^4.0.2",
