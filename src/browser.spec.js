@@ -2,13 +2,18 @@ const MiniZinc = require("../dist/test-minizinc.cjs");
 
 // Use web worker library for worker since not available on node
 global.Worker = require("web-worker");
+global.Blob = require("buffer").Blob;
 
 const { commonTests } = require("./tests.cjs");
 
 jest.setTimeout(30000);
 
 beforeAll(async () => {
-  await MiniZinc.init({ workerURL: "./dist/test-minizinc-worker.cjs" });
+  await MiniZinc.init({
+    workerURL: "./dist/test-minizinc-worker.cjs",
+    wasmURL: "./dist/minizinc.wasm",
+    dataURL: "./minizinc.data",
+  });
 });
 
 afterAll(() => {

@@ -5,12 +5,24 @@ let settings = {
   numWorkers: 2,
 };
 const workers = [];
+let workerObjectURL;
 
 function newWorker() {
-  const worker = new Worker(settings.workerURL);
+  if (!workerObjectURL) {
+    const importer = `importScripts(${JSON.stringify(settings.workerURL)});`;
+    workerObjectURL = URL.createObjectURL(
+      new Blob([importer], { type: "text/javascript" })
+    );
+  }
+  const _workerUrl = workerObjectURL;
+  const worker = new Worker(_workerUrl);
   worker.postMessage({
-    wasmURL: settings.wasmURL ? wasmURL.toString() : null,
-    dataURL: settings.dataURL ? settings.dataURL.toString() : null,
+    wasmURL: settings.wasmURL
+      ? settings.wasmURL.toString()
+      : new URL("./minizinc.wasm", settings.workerURL).toString(),
+    dataURL: settings.dataURL
+      ? settings.dataURL.toString()
+      : new URL("./minizinc.data", settings.workerURL).toString(),
   });
   workers.push({ worker, runCount: 0 });
 }
@@ -54,6 +66,8 @@ export function shutdown() {
     worker.worker.terminate();
   }
   workers.splice(0);
+  URL.revokeObjectURL(workerObjectURL);
+  workerObjectURL = null;
 }
 
 export class Model {

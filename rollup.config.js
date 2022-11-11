@@ -20,6 +20,9 @@ const browser = (output, src) => ({
     replace({
       URL_BASE: src || "document.currentScript.src",
       preventAssignment: true,
+      ...(testing && {
+        _workerUrl: "settings.workerURL",
+      }),
     }),
   ],
 });
@@ -43,8 +46,8 @@ const worker = (output) => ({
       targets: [
         {
           src: [
-            path.join(minizincInstallDir, "bin/minizinc.data"),
-            path.join(minizincInstallDir, "bin/minizinc.wasm"),
+            path.join(minizincInstallDir, "/bin/minizinc.data"),
+            path.join(minizincInstallDir, "/bin/minizinc.wasm"),
           ],
           dest: "dist",
         },

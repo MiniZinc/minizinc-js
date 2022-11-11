@@ -81,10 +81,10 @@ addEventListener("message", async (e) => {
     } else {
       initMiniZinc = MINIZINC({
         locateFile(path, prefix) {
-          if (path === "minizinc.wasm" && e.data.wasmURL) {
+          if (path === "minizinc.wasm") {
             return e.data.wasmURL;
           }
-          if (path === "minizinc.data" && e.data.dataURL) {
+          if (path === "minizinc.data") {
             return e.data.dataURL;
           }
           return prefix + path;
