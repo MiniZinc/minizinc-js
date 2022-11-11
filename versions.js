@@ -2,7 +2,7 @@ const scriptSrc = document.currentScript.src;
 window.addEventListener('load', async () => {
     try {
         const response = await fetch(
-            'https://api.github.com/repos/cyderize/minizinc-js/contents/docs?ref=gh-pages'
+            'https://api.github.com/repos/minizinc/minizinc-js/contents/docs?ref=gh-pages'
         );
         const json = await response.json();
         const channels = ['stable', 'develop'].filter((x) =>
@@ -41,7 +41,7 @@ window.addEventListener('load', async () => {
             option.value = new URL(`docs/${item}/`, scriptSrc).toString();
             option.textContent = label;
             if (window.location.href.startsWith(option.value)) {
-                option.selected = true;
+                select.value = option.value;
             }
             select.appendChild(option);
         }
