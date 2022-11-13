@@ -46,12 +46,17 @@ const worker = (output) => ({
       targets: [
         {
           src: [
-            path.join(minizincInstallDir, "/bin/minizinc.data"),
-            path.join(minizincInstallDir, "/bin/minizinc.wasm"),
+            path
+              .join(minizincInstallDir, "/bin/minizinc.data")
+              .replace(/\\/g, "/"),
+            path
+              .join(minizincInstallDir, "/bin/minizinc.wasm")
+              .replace(/\\/g, "/"),
           ],
           dest: "dist",
         },
       ],
+      verbose: true,
     }),
     commonjs({ ignore: ["fs", "path"] }),
     production && terser(),
