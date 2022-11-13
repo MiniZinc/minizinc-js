@@ -152,8 +152,8 @@ addEventListener("message", async (e) => {
                 solverDefaults: [
                   [
                     "org.minizinc.gecode_presolver",
+                    "--backend-flags",
                     "--allow-unbounded-vars",
-                    "",
                   ],
                 ],
                 tagDefaults: [["", "org.minizinc.gecode_presolver"]],
