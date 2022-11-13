@@ -12,7 +12,7 @@ beforeAll(async () => {
   await MiniZinc.init({
     workerURL: "./dist/test-minizinc-worker.cjs",
     wasmURL: "./dist/minizinc.wasm",
-    dataURL: "./minizinc.data",
+    dataURL: "./dist/minizinc.data",
   });
 });
 
