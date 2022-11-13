@@ -3,8 +3,11 @@
   "entryPoints": ["./types/index.d.ts"],
   "out": "docs",
   "name": "MiniZinc JavaScript",
-  "includeVersion": true,
   "excludePrivate": true,
   "excludeProtected": true,
-  "excludeExternals": true
+  "excludeExternals": true,
+  "navigationLinks": {
+    "MiniZinc": "https://minizinc.dev",
+    "GitHub": "https://github.com/minizinc/minizinc-js"
+  }
 }
