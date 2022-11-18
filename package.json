@@ -15,7 +15,10 @@
       },
       "require": "./dist/minizinc.cjs",
       "default": "./dist/minizinc.mjs"
-    }
+    },
+    "./minizinc-worker.js": "./dist/minizinc-worker.js",
+    "./minizinc.wasm": "./dist/minizinc.wasm",
+    "./minizinc.data": "./dist/minizinc.data"
   },
   "scripts": {
     "test": "rollup -c --environment TEST && jest",
