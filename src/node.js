@@ -273,7 +273,7 @@ export class Model {
   }
   solve(cfg) {
     const config = { jsonOutput: true, ...cfg };
-    const args = [];
+    const args = ["-i"]; // Always use intermediate solutions
     if (config.jsonOutput) {
       args.push("--output-mode");
       args.push("json");
