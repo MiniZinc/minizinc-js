@@ -38,14 +38,14 @@
   },
   "devDependencies": {
     "@el3um4s/rollup-plugin-terser": "^1.0.2",
-    "@rollup/plugin-alias": "^4.0.2",
-    "@rollup/plugin-commonjs": "^23.0.2",
-    "@rollup/plugin-replace": "^5.0.1",
+    "@rollup/plugin-alias": "^4.0.3",
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-replace": "^5.0.2",
     "@rollup/plugin-url": "^8.0.1",
-    "jest": "^29.2.2",
-    "rollup": "^3.2.5",
+    "jest": "^29.4.1",
+    "rollup": "^3.12.1",
     "rollup-plugin-copy": "^3.4.0",
-    "typedoc": "^0.23.19",
+    "typedoc": "^0.23.24",
     "web-worker": "^1.2.0"
   }
 }
