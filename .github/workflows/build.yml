@@ -52,6 +52,7 @@ jobs:
             -DBUILD_REF=$GITHUB_RUN_NUMBER \
             -DGecode_ROOT="$GITHUB_WORKSPACE/vendor/gecode" \
             -DOsiCBC_ROOT="$GITHUB_WORKSPACE/vendor/cbc" \
+            -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/vendor/highs/lib/cmake/highs:$GITHUB_WORKSPACE/vendor/chuffed/lib/cmake/chuffed" \
             -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/minizinc"
       - name: Build MiniZinc
         if: steps.cache.outputs.cache-hit != 'true'
