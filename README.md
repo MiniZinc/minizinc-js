@@ -188,7 +188,9 @@ with the addition of the `exit` event, which can be used to detect when solving 
 not wish to await the `Solve` object).
 
 By default, `--output-mode json` is used. Use `Model.solve({ jsonOutput: false, ...})` to
-disable this behaviour.
+disable this behaviour. 
+
+For more custom options and functionalities, read the [docs page](https://js.minizinc.dev/docs/develop).
 
 ## Building
 
