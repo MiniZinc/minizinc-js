@@ -40,10 +40,10 @@ window.addEventListener('load', async () => {
             const option = document.createElement('option');
             option.value = new URL(`docs/${item}/`, scriptSrc).toString();
             option.textContent = label;
+            select.appendChild(option);
             if (window.location.href.startsWith(option.value)) {
                 select.value = option.value;
             }
-            select.appendChild(option);
         }
         select.addEventListener('change', () => {
             window.location.href = select.value;
