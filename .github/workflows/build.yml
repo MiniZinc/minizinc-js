@@ -181,7 +181,7 @@ jobs:
         run: |
           sed -i 's#/minizinc/dist/#/minizinc@edge/dist/#g' docs/index.html
           sed -i 's/npm install minizinc/npm install minizinc@edge/g' docs/index.html
-          sed -i 's#https://js.minizinc.dev/docs/stable/#https://js.minizinc.dev/docs/edge/#g' docs/index.html
+          sed -i 's#https://js.minizinc.dev/docs/stable/#https://js.minizinc.dev/docs/develop/#g' docs/index.html
       - name: Publish documentation
         if: ${{ github.event_name != 'pull_request' }}
         uses: peaceiris/actions-gh-pages@v3
