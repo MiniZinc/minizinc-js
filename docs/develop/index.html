@@ -78,7 +78,7 @@ Otherwise, you can specify the executable path during <a href="#initialisation">
   <h3>Initialisation</h3>
 </a>
 <p>Initialisation happens automatically when the library is used, or by calling
-<a href="https://js.minizinc.dev/docs/edge/functions/init.html"><code>init(...)</code></a>. This can used to ensure
+<a href="https://js.minizinc.dev/docs/develop/functions/init.html"><code>init(...)</code></a>. This can used to ensure
 that the WebAssembly files start loading immediately, or to specify a different URL for the worker
 (or path to the MiniZinc executable if using NodeJS).</p>
 <p>In the browser:</p>
@@ -93,36 +93,36 @@ that the WebAssembly files start loading immediately, or to specify a different 
   <h3>Creating Models</h3>
 </a>
 <p>The main entrypoint for using the library is through the
-<a href="https://js.minizinc.dev/docs/edge/classes/Model.html"><code>Model</code></a> class:</p>
+<a href="https://js.minizinc.dev/docs/develop/classes/Model.html"><code>Model</code></a> class:</p>
 <pre><code class="language-js"><span class="hl-8">const</span><span class="hl-10"> </span><span class="hl-9">model</span><span class="hl-10"> = </span><span class="hl-8">new</span><span class="hl-10"> </span><span class="hl-6">MiniZinc</span><span class="hl-10">.</span><span class="hl-11">Model</span><span class="hl-10">();</span><br/><span class="hl-12">// Add a file with a given name and string contents</span><br/><span class="hl-6">model</span><span class="hl-10">.</span><span class="hl-11">addFile</span><span class="hl-10">(</span><span class="hl-7">&#39;test.mzn&#39;</span><span class="hl-10">, </span><span class="hl-7">&#39;var 1..3: x; int: y;&#39;</span><span class="hl-10">);</span><br/><span class="hl-12">// If you&#39;re using NodeJS, you can add files from the filesystem directly</span><br/><span class="hl-6">model</span><span class="hl-10">.</span><span class="hl-11">addFile</span><span class="hl-10">(</span><span class="hl-7">&#39;test.mzn&#39;</span><span class="hl-10">);</span><br/><span class="hl-12">// Add model code from a string</span><br/><span class="hl-6">model</span><span class="hl-10">.</span><span class="hl-11">addString</span><span class="hl-10">(</span><span class="hl-7">&#39;int: z;&#39;</span><span class="hl-10">);</span><br/><span class="hl-12">// Add data in DZN format</span><br/><span class="hl-6">model</span><span class="hl-10">.</span><span class="hl-11">addDznString</span><span class="hl-10">(</span><span class="hl-7">&#39;y = 1;&#39;</span><span class="hl-10">);</span><br/><span class="hl-12">// Add data from a JSON object</span><br/><span class="hl-6">model</span><span class="hl-10">.</span><span class="hl-11">addJSON</span><span class="hl-10">({</span><span class="hl-6">z:</span><span class="hl-10"> </span><span class="hl-13">2</span><span class="hl-10">});</span>
 </code></pre>
 
 <a href="#solving" id="solving" style="color: inherit; text-decoration: none;">
   <h3>Solving</h3>
 </a>
-<p>Solving is done using the <a href="https://js.minizinc.dev/docs/edge/classes/Model.html#solve"><code>Model.solve(...)</code></a> method,
+<p>Solving is done using the <a href="https://js.minizinc.dev/docs/develop/classes/Model.html#solve"><code>Model.solve(...)</code></a> method,
 which takes an object with <code>options</code> in <a href="https://minizinc.dev/doc-latest/en/command_line.html#ch-param-files"><code>.mpc</code></a>
 format.</p>
 <pre><code class="language-js"><span class="hl-8">const</span><span class="hl-10"> </span><span class="hl-9">solve</span><span class="hl-10"> = </span><span class="hl-6">model</span><span class="hl-10">.</span><span class="hl-11">solve</span><span class="hl-10">({</span><br/><span class="hl-10">  </span><span class="hl-6">options:</span><span class="hl-10"> {</span><br/><span class="hl-10">    </span><span class="hl-6">solver:</span><span class="hl-10"> </span><span class="hl-7">&#39;gecode&#39;</span><span class="hl-10">,</span><br/><span class="hl-10">    </span><span class="hl-6">timeout:</span><span class="hl-10"> </span><span class="hl-13">10000</span><span class="hl-10">,</span><br/><span class="hl-10">    </span><span class="hl-6">statistics:</span><span class="hl-10"> </span><span class="hl-8">true</span><br/><span class="hl-10">  }</span><br/><span class="hl-10">});</span><br/><span class="hl-12">// You can listen for events</span><br/><span class="hl-6">solve</span><span class="hl-10">.</span><span class="hl-11">on</span><span class="hl-10">(</span><span class="hl-7">&#39;solution&#39;</span><span class="hl-10">, </span><span class="hl-6">solution</span><span class="hl-10"> </span><span class="hl-8">=&gt;</span><span class="hl-10"> </span><span class="hl-6">console</span><span class="hl-10">.</span><span class="hl-11">log</span><span class="hl-10">(</span><span class="hl-6">solution</span><span class="hl-10">.</span><span class="hl-6">output</span><span class="hl-10">.</span><span class="hl-6">json</span><span class="hl-10">));</span><br/><span class="hl-6">solve</span><span class="hl-10">.</span><span class="hl-11">on</span><span class="hl-10">(</span><span class="hl-7">&#39;statistics&#39;</span><span class="hl-10">, </span><span class="hl-6">stats</span><span class="hl-10"> </span><span class="hl-8">=&gt;</span><span class="hl-10"> </span><span class="hl-6">console</span><span class="hl-10">.</span><span class="hl-11">log</span><span class="hl-10">(</span><span class="hl-6">stats</span><span class="hl-10">.</span><span class="hl-6">statistics</span><span class="hl-10">));</span><br/><span class="hl-12">// And/or wait until complete</span><br/><span class="hl-6">solve</span><span class="hl-10">.</span><span class="hl-11">then</span><span class="hl-10">(</span><span class="hl-6">result</span><span class="hl-10"> </span><span class="hl-8">=&gt;</span><span class="hl-10"> {</span><br/><span class="hl-10">  </span><span class="hl-6">console</span><span class="hl-10">.</span><span class="hl-11">log</span><span class="hl-10">(</span><span class="hl-6">result</span><span class="hl-10">.</span><span class="hl-6">solution</span><span class="hl-10">.</span><span class="hl-6">output</span><span class="hl-10">.</span><span class="hl-6">json</span><span class="hl-10">);</span><br/><span class="hl-10">  </span><span class="hl-6">console</span><span class="hl-10">.</span><span class="hl-11">log</span><span class="hl-10">(</span><span class="hl-6">result</span><span class="hl-10">.</span><span class="hl-6">statistics</span><span class="hl-10">);</span><br/><span class="hl-10">});</span>
 </code></pre>
 <p>During solving, MiniZinc emits events which can be subscribed to/unsubscribed from using the
-<a href="https://js.minizinc.dev/docs/edge/interfaces/SolveProgress.html#on"><code>SolveProgress.on</code></a> /
-<a href="https://js.minizinc.dev/docs/edge/interfaces/SolveProgress.html#off"><code>SolveProgress.off</code></a>
+<a href="https://js.minizinc.dev/docs/develop/interfaces/SolveProgress.html#on"><code>SolveProgress.on</code></a> /
+<a href="https://js.minizinc.dev/docs/develop/interfaces/SolveProgress.html#off"><code>SolveProgress.off</code></a>
 methods. The events are those which appear in
 <a href="https://minizinc.dev/doc-latest/en/json-stream.html">Machine-readable JSON output format</a>,
-with the addition of the <a href="https://js.minizinc.dev/docs/edge/interfaces/ExitMessage.html"><code>exit</code></a>
+with the addition of the <a href="https://js.minizinc.dev/docs/develop/interfaces/ExitMessage.html"><code>exit</code></a>
 event, which can be used to detect when solving finishes (if you do not wish to await the 
-<a href="https://js.minizinc.dev/docs/edge/interfaces/SolveProgress.html"><code>SolveProgress</code></a> object).</p>
+<a href="https://js.minizinc.dev/docs/develop/interfaces/SolveProgress.html"><code>SolveProgress</code></a> object).</p>
 <p>By default, <code>--output-mode json</code> is used, allowing you to retrieve the model variable values
 directly from the solution objects. Use
-<a href="https://js.minizinc.dev/docs/edge/classes/Model.html#solve"><code>Model.solve({ jsonOutput: false, ...})</code></a>
+<a href="https://js.minizinc.dev/docs/develop/classes/Model.html#solve"><code>Model.solve({ jsonOutput: false, ...})</code></a>
 (and optionally specify a different <code>output-mode</code> in the <code>options</code>) to disable this behaviour.</p>
 
 <a href="#documentation" id="documentation" style="color: inherit; text-decoration: none;">
   <h2>Documentation</h2>
 </a>
 <p>For more detailed documentation of all available options and functionality, visit the 
-<a href="https://js.minizinc.dev/docs/edge/">API documentation</a>.</p>
+<a href="https://js.minizinc.dev/docs/develop/">API documentation</a>.</p>
 
 <a href="#building" id="building" style="color: inherit; text-decoration: none;">
   <h2>Building</h2>
