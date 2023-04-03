@@ -113,4 +113,14 @@ module.exports.commonTests = (MiniZinc) => {
     expect(iface.output).toEqual({ x: { type: "int" } });
     expect(iface.method).toBe("sat");
   });
+
+  test("UTF-8 support", async () => {
+    const model = new MiniZinc.Model();
+    model.addString("int: 'μ' :: output = 1; string: x :: output = \"μ\";");
+    const result = await model.solve();
+    expect(result.solution.output.json).toMatchObject({
+      μ: 1,
+      x: "μ",
+    });
+  });
 };
