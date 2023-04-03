@@ -8,8 +8,8 @@ addEventListener("message", async (e) => {
   try {
     if (initMiniZinc) {
       const Module = await initMiniZinc;
-      Module.stdoutBuffer = "";
-      Module.stderrBuffer = "";
+      Module.stdoutBuffer = [];
+      Module.stderrBuffer = [];
       Module.jsonStream = !!e.data.jsonStream;
       Module.FS.mount(Module.FS.filesystems.MEMFS, null, "/minizinc");
       if (e.data.files) {
@@ -43,10 +43,16 @@ addEventListener("message", async (e) => {
         // Add exit message so the controller can tell that we're done
         const exitMessage = { type: "exit", code };
         if (Module.stdoutBuffer.length > 0) {
-          exitMessage.stdout = Module.stdoutBuffer;
+          const decoder = new TextDecoder("utf-8");
+          exitMessage.stdout = decoder.decode(
+            new Uint8Array(Module.stdoutBuffer)
+          );
         }
         if (Module.stderrBuffer.length > 0) {
-          exitMessage.stderr = Module.stderrBuffer;
+          const decoder = new TextDecoder("utf-8");
+          exitMessage.stderr = decoder.decode(
+            new Uint8Array(Module.stderrBuffer)
+          );
         }
         if (e.data.outputFiles) {
           exitMessage.outputFiles = {};
@@ -92,12 +98,18 @@ addEventListener("message", async (e) => {
         preRun: [
           (Module) => {
             const stdout = (code) => {
-              const char = String.fromCharCode(code);
-              Module.stdoutBuffer += char;
-              if (Module.jsonStream && char === "\n") {
+              if (code === 0x0) {
+                return;
+              }
+              Module.stdoutBuffer.push(code);
+              if (Module.jsonStream && code === 0x0a) {
+                const decoder = new TextDecoder("utf-8");
+                const line = decoder.decode(
+                  new Uint8Array(Module.stdoutBuffer)
+                );
                 try {
                   // Send the JSON stream message
-                  const obj = JSON.parse(Module.stdoutBuffer);
+                  const obj = JSON.parse(line);
                   if (
                     "location" in obj &&
                     "filename" in obj.location &&
@@ -123,22 +135,28 @@ addEventListener("message", async (e) => {
                   // Fall back to creating a stdout message
                   postMessage({
                     type: "stdout",
-                    value: Module.stdoutBuffer,
+                    value: line,
                   });
                 }
-                Module.stdoutBuffer = "";
+                Module.stdoutBuffer = [];
               }
             };
             const stderr = (code) => {
-              const char = String.fromCharCode(code);
-              Module.stderrBuffer += char;
-              if (Module.jsonStream && char === "\n") {
+              if (code === 0x0) {
+                return;
+              }
+              Module.stderrBuffer.push(code);
+              if (Module.jsonStream && code === 0x0a) {
                 // Send as a stderr message
+                const decoder = new TextDecoder("utf-8");
+                const line = decoder.decode(
+                  new Uint8Array(Module.stderrBuffer)
+                );
                 postMessage({
                   type: "stderr",
-                  value: Module.stderrBuffer,
+                  value: line,
                 });
-                Module.stderrBuffer = "";
+                Module.stderrBuffer = [];
               }
             };
             Module.FS.init(null, stdout, stderr);
