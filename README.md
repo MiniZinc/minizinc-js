@@ -110,7 +110,7 @@ Otherwise, you can specify the executable path during [initialisation](#initiali
 ### Initialisation
 
 Initialisation happens automatically when the library is used, or by calling
-[`init(...)`](https://js.minizinc.dev/docs/stable/functions/init.html). This can used to ensure
+[`init(...)`](https://js.minizinc.dev/docs/stable/functions/init.html). This can be used to ensure
 that the WebAssembly files start loading immediately, or to specify a different URL for the worker
 (or path to the MiniZinc executable if using NodeJS).
 
