@@ -3,6 +3,7 @@ name: Build, test, release
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 env:
   STABLE: ${{ (github.ref_name == 'stable' || startsWith(github.ref, 'refs/tags/v')) && 'yes' || 'no' }}
