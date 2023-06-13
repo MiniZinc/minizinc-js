@@ -50,7 +50,7 @@ jobs:
           emcmake cmake -S . -B build \
             -DCMAKE_FIND_ROOT_PATH="/" \
             -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_REF=$GITHUB_RUN_NUMBER \
+            -DBUILD_REF=$GITHUB_RUN_ID \
             -DGecode_ROOT="$GITHUB_WORKSPACE/vendor/gecode" \
             -DOsiCBC_ROOT="$GITHUB_WORKSPACE/vendor/cbc" \
             -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/vendor/highs/lib/cmake/highs:$GITHUB_WORKSPACE/vendor/chuffed/lib/cmake/chuffed" \
