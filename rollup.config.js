@@ -58,7 +58,7 @@ const worker = (output) => ({
       ],
       verbose: true,
     }),
-    commonjs({ ignore: ["fs", "path", "ws"] }),
+    commonjs({ ignore: ["fs", "path", "perf_hooks", "ws"] }),
     production && terser(),
   ],
 });
