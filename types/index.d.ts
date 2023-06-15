@@ -23,7 +23,7 @@
  * const solve = model.solve({
  *   options: {
  *     solver: 'gecode',
- *     timeout: 10000,
+ *     'time-limit': 10000,
  *     statistics: true
  *   }
  * });
