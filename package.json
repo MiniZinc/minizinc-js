@@ -1,6 +1,6 @@
 {
   "name": "minizinc",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "JavaScript API for MiniZinc",
   "homepage": "https://js.minizinc.dev",
   "types": "types/index.d.ts",
