@@ -1,6 +1,6 @@
 {
   "name": "minizinc",
-  "version": "4.0.3",
+  "version": "4.1.0",
   "description": "JavaScript API for MiniZinc",
   "homepage": "https://js.minizinc.dev",
   "types": "types/index.d.ts",
@@ -39,7 +39,7 @@
   "devDependencies": {
     "@el3um4s/rollup-plugin-terser": "^1.0.2",
     "@rollup/plugin-alias": "^5.0.0",
-    "@rollup/plugin-commonjs": "^25.0.1",
+    "@rollup/plugin-commonjs": "^25.0.2",
     "@rollup/plugin-replace": "^5.0.2",
     "@rollup/plugin-url": "^8.0.1",
     "jest": "^29.5.0",
