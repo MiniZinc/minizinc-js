@@ -123,4 +123,18 @@ module.exports.commonTests = (MiniZinc) => {
       x: "μ",
     });
   });
+
+  test("Stdlib file retrieval", async () => {
+    const contents = await MiniZinc.readStdlibFileContents("std/stdlib.mzn");
+    expect(contents.length).toBeGreaterThan(0);
+    const multiple = await MiniZinc.readStdlibFileContents([
+      "std/stdlib.mzn",
+      "std/redefinitions.mzn",
+    ]);
+    expect(multiple["std/stdlib.mzn"].length).toBeGreaterThan(0);
+    expect(multiple["std/redefinitions.mzn"].length).toBeGreaterThan(0);
+    await expect(MiniZinc.readStdlibFileContents("../foo")).rejects.toEqual(
+      "Unsupported file path ../foo"
+    );
+  });
 };

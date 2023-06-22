@@ -451,3 +451,36 @@ export function solvers() {
     };
   });
 }
+
+export function readStdlibFileContents(files) {
+  const keys = Array.isArray(files) ? files : [files];
+  return new Promise((resolve, reject) => {
+    fillWorkerPool();
+    let { worker, runCount } = workers.pop();
+    worker.postMessage({
+      readStdlibFiles: keys,
+    });
+    worker.onmessage = (e) => {
+      if (e.data.type === "readStdlibFiles") {
+        if (runCount < 10) {
+          workers.push({
+            worker,
+            runCount: runCount + 1,
+          });
+        } else {
+          worker.terminate();
+          newWorker();
+        }
+        if (Array.isArray(files)) {
+          resolve(e.data.files);
+        } else {
+          resolve(e.data.files[files]);
+        }
+      } else if (e.data.type === "error") {
+        worker.terminate();
+        newWorker();
+        reject(e.data.message);
+      }
+    };
+  });
+}
