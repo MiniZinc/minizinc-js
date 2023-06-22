@@ -323,6 +323,27 @@ export function version(): Promise<string>;
  */
 export function solvers(): Promise<object[]>;
 
+/**
+ * Get the contents of a text file in the MiniZinc share directory.
+ *
+ * Only files inside the MiniZinc share directory (or its children) may be used.
+ *
+ * @param file The path to the desired file relative to the MiniZinc share directory
+ * @returns The contents of the file, or null if it can't be read
+ */
+export function readStdlibFileContents(file: string): Promise<string>;
+/**
+ * Get the contents of text files in the MiniZinc share directory.
+ *
+ * Only files inside the MiniZinc share directory (or its children) may be used.
+ *
+ * @param files An array of paths to the desired files relative to the MiniZinc share directory
+ * @returns An object whose keys are requested file names and whose values are the file contents, or null if it can't be read
+ */
+export function readStdlibFileContents(
+  files: string[]
+): Promise<{ [key: string]: string }>;
+
 /** Terminate any running MiniZinc processes and cleanup. */
 export function shutdown(): void;
 

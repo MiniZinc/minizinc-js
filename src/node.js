@@ -364,3 +364,42 @@ export function solvers() {
     childProcesses.add(proc);
   });
 }
+
+export function readStdlibFileContents(files) {
+  const keys = Array.isArray(files) ? files : [files];
+  return new Promise((resolve, reject) => {
+    let proc = null;
+    proc = child_process.execFile(
+      settings._executable,
+      ["--config-dirs"],
+      async (error, stdout, stderr) => {
+        childProcesses.delete(proc);
+        if (error) {
+          reject(error);
+        }
+        const mznStdlibDir = JSON.parse(stdout).mznStdlibDir;
+        const result = {};
+        for (const key of keys) {
+          const p = path.join(mznStdlibDir, key);
+          const rel = path.relative(mznStdlibDir, p);
+          if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) {
+            reject(`Unsupported file path ${key}`);
+          }
+          try {
+            result[key] = await fs.readFile(p, {
+              encoding: "utf8",
+            });
+          } catch (e) {
+            result[key] = null;
+          }
+        }
+        if (Array.isArray(files)) {
+          resolve(result);
+        } else {
+          resolve(result[files]);
+        }
+      }
+    );
+    childProcesses.add(proc);
+  });
+}

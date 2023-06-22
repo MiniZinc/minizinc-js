@@ -8,6 +8,36 @@ addEventListener("message", async (e) => {
   try {
     if (initMiniZinc) {
       const Module = await initMiniZinc;
+      if (e.data.readStdlibFiles) {
+        const files = {};
+        const prefix = "file:///usr/share/minizinc/";
+        for (const key of e.data.readStdlibFiles) {
+          const resolved = new URL(prefix + key).href;
+          if (resolved.indexOf(prefix) !== 0) {
+            // Ensure path is a valid relative path
+            console.error(`Unsupported file path ${key}`);
+            postMessage({
+              type: "error",
+              message: `Unsupported file path ${key}`,
+            });
+            return;
+          }
+          const path =
+            "/usr/share/minizinc/" + resolved.substring(prefix.length);
+          if (Module.FS.analyzePath(path).exists) {
+            files[key] = Module.FS.readFile(path, {
+              encoding: "utf8",
+            });
+          } else {
+            files[key] = null;
+          }
+        }
+        postMessage({
+          type: "readStdlibFiles",
+          files,
+        });
+        return;
+      }
       Module.stdoutBuffer = [];
       Module.stderrBuffer = [];
       Module.jsonStream = !!e.data.jsonStream;
