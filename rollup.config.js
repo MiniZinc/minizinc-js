@@ -4,6 +4,9 @@ import { terser } from "@el3um4s/rollup-plugin-terser";
 import replace from "@rollup/plugin-replace";
 import alias from "@rollup/plugin-alias";
 import path from "path";
+import fs from "fs";
+
+const pkg = JSON.parse(fs.readFileSync('./package.json'));
 
 const testing = process.env.TEST;
 const production = !process.env.ROLLUP_WATCH && !testing;
@@ -19,6 +22,7 @@ const browser = (output, src) => ({
     production && terser(),
     replace({
       URL_BASE: src || "document.currentScript.src",
+      PACKAGE_VERSION: JSON.stringify(pkg.version),
       preventAssignment: true,
       ...(testing && {
         _workerUrl: "settings.workerURL",

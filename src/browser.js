@@ -1,7 +1,8 @@
 // Controller in charge of web worker pool in the browser
 
+const cacheBuster = encodeURIComponent(PACKAGE_VERSION);
 let settings = {
-  workerURL: new URL("./minizinc-worker.js", URL_BASE),
+  workerURL: new URL(`./minizinc-worker.js?version=${cacheBuster}`, URL_BASE),
   numWorkers: 2,
 };
 const workers = [];
@@ -19,10 +20,16 @@ function newWorker() {
   worker.postMessage({
     wasmURL: settings.wasmURL
       ? settings.wasmURL.toString()
-      : new URL("./minizinc.wasm", settings.workerURL).toString(),
+      : new URL(
+          `./minizinc.wasm?version=${cacheBuster}`,
+          settings.workerURL
+        ).toString(),
     dataURL: settings.dataURL
       ? settings.dataURL.toString()
-      : new URL("./minizinc.data", settings.workerURL).toString(),
+      : new URL(
+          `./minizinc.data?version=${cacheBuster}`,
+          settings.workerURL
+        ).toString(),
   });
   workers.push({ worker, runCount: 0 });
 }
