@@ -80,6 +80,25 @@ module.exports.commonTests = (MiniZinc) => {
     expect(values.length).toBe(3);
   });
 
+  test("Error events", async () => {
+    const model = new MiniZinc.Model();
+    model.addString(`
+      function int: foo(1..1: x) = x;
+      int: v = foo(2);
+    `);
+    const solve = model.solve();
+    expect.assertions(3);
+    solve.on("error", (e) => {
+      expect(typeof e.message).toBe("string");
+    });
+    try {
+      await solve;
+    } catch (e) {
+      expect(e.code).toBe(1);
+      expect(typeof e.message).toBe("string");
+    }
+  });
+
   test("Basic compile", async () => {
     const model = new MiniZinc.Model();
     model.addString("var 1..3: x;");

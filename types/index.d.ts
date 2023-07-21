@@ -632,6 +632,8 @@ export interface ExitMessage {
   type: "exit";
   /** Exit code, or null if the process was interrupted */
   code: number | null;
+  /** Possible message if there was an error */
+  message?: string;
 }
 
 /**

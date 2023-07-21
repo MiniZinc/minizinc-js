@@ -289,10 +289,13 @@ export class Model {
         const onExit = (e) => {
           if (e.code === 0) {
             resolve(e.outputFiles[out]);
-          } else if (reject) {
-            reject({ ...e, error });
           } else {
-            throw e;
+            const exit = error ? { message: error.message, ...e } : e;
+            if (reject) {
+              reject(exit);
+            } else {
+              throw exit;
+            }
           }
         };
         if (callbacks.exit) {
@@ -385,10 +388,13 @@ export class Model {
               solution,
               statistics,
             });
-          } else if (reject) {
-            reject({ ...e, error });
           } else {
-            throw e;
+            const exit = error ? { message: error.message, ...e } : e;
+            if (reject) {
+              reject(exit);
+            } else {
+              throw exit;
+            }
           }
         };
         if (callbacks.exit) {

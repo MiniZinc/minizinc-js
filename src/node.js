@@ -147,6 +147,7 @@ export class Model {
           if (
             "location" in obj &&
             "filename" in obj.location &&
+            typeof obj.location.filename === "string" &&
             obj.location.filename.indexOf(tempdir) === 0
           ) {
             // Strip prefix from filename
@@ -159,6 +160,7 @@ export class Model {
               if (
                 "location" in s &&
                 "filename" in s.location &&
+                typeof s.location.filename === "string" &&
                 s.location.filename.indexOf(tempdir) === 0
               ) {
                 // Strip prefix from filename
@@ -262,10 +264,13 @@ export class Model {
         proc.on("exit", (e) => {
           if (e.code === 0) {
             resolve(e.outputFiles[out]);
-          } else if (reject) {
-            reject({ ...e, error });
           } else {
-            throw e;
+            const exit = error ? { message: error.message, ...e } : e;
+            if (reject) {
+              reject(exit);
+            } else {
+              throw exit;
+            }
           }
         });
       },
@@ -318,10 +323,13 @@ export class Model {
               solution,
               statistics,
             });
-          } else if (reject) {
-            reject({ ...e, error });
           } else {
-            throw e;
+            const exit = error ? { message: error.message, ...e } : e;
+            if (reject) {
+              reject(exit);
+            } else {
+              throw exit;
+            }
           }
         });
       },
