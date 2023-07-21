@@ -109,7 +109,7 @@ addEventListener("message", async (e) => {
         postMessage({
           type: "exit",
           code: -1,
-          error: e.message,
+          message: e.message,
         });
       }
       Module.FS.chdir(oldCwd);
@@ -143,6 +143,7 @@ addEventListener("message", async (e) => {
                   if (
                     "location" in obj &&
                     "filename" in obj.location &&
+                    typeof obj.location.filename === "string" &&
                     obj.location.filename.indexOf("/minizinc/") === 0
                   ) {
                     // Strip prefix from filename
@@ -153,6 +154,7 @@ addEventListener("message", async (e) => {
                       if (
                         "location" in s &&
                         "filename" in s.location &&
+                        typeof s.location.filename === "string" &&
                         s.location.filename.indexOf("/minizinc/") === 0
                       ) {
                         // Strip prefix from filename
