@@ -537,9 +537,17 @@ export interface CheckerMessage {
   type: "checker";
   /** Time in milliseconds (if run with `output-time: true`) */
   time?: number;
-  /** Mapping between output section name and contents */
+  /** Messages produced by the checker */
+  messages: (SolutionMessage | TraceMessage)[];
+  /** Mapping between output section name and contents
+   *
+   * @deprecated Use the `messages` list to retrieve the output instead.
+   */
   output: Output;
-  /** The sections output in order */
+  /** The sections output in order
+   *
+   * @deprecated Use the `messages` list to retrieve the output instead.
+   */
   sections: string[];
 }
 
