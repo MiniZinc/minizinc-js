@@ -538,7 +538,7 @@ export interface CheckerMessage {
   /** Time in milliseconds (if run with `output-time: true`) */
   time?: number;
   /** Messages produced by the checker */
-  messages: (SolutionMessage | TraceMessage)[];
+  messages: (SolutionMessage | TraceMessage | ErrorMessage | WarningMessage)[];
   /** Mapping between output section name and contents
    *
    * @deprecated Use the `messages` list to retrieve the output instead.
