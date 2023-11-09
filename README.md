@@ -205,6 +205,35 @@ For more detailed documentation of all available options and functionality, visi
 
 ## Building
 
+### Compiling MiniZinc for WebAssembly 
+
+The WebAssembly build of MiniZinc requires [Emscripten](https://emscripten.org/).
+
+```sh
+# Clone MiniZinc
+git clone https://github.com/MiniZinc/libminizinc minizinc
+
+# Download solvers (or you can build them yourself using emscripten)
+cd minizinc
+MZNARCH=wasm ./download_vendor
+
+# Configure MiniZinc
+emcmake cmake -S . -B build \
+  -DCMAKE_FIND_ROOT_PATH="/" \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DGecode_ROOT="$PWD/vendor/gecode" \
+  -DOsiCBC_ROOT="$PWD/vendor/cbc" \
+  -DCMAKE_PREFIX_PATH="$PWD/vendor/highs/lib/cmake/highs:$PWD/vendor/chuffed/lib/cmake/chuffed" \
+  -DCMAKE_INSTALL_PREFIX="../minizinc-install"
+
+# Build MiniZinc
+cmake --build build --config Release --target install
+```
+
+The WebAssembly build of MiniZinc can also be obtained from the [build workflow](https://github.com/MiniZinc/minizinc-js/actions/workflows/build.yml) as the `minizinc` artifact.
+
+### Building MiniZinc JS
+
 1. Run `npm install` to install dependencies.
 2. Place the `bin/` folder of the WebAssembly build of MiniZinc inside this directory.
    Alternatively set the `MZN_WASM_DIR` environment variable to the installation directory of the
