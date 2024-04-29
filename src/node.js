@@ -92,7 +92,7 @@ export class Model {
     if (typeof contents === "string") {
       this._addVirtual(filename, contents, use);
     } else {
-      this._add_toRun(filename.use);
+      this._add_toRun(filename, use);
     }
   }
   _run(args, options, outputFiles) {
