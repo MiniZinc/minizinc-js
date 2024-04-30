@@ -24,13 +24,13 @@ jobs:
           git config --global --add safe.directory $GITHUB_WORKSPACE
       - name: Checkout latest MiniZinc
         if: ${{ env.STABLE == 'yes' }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: minizinc/libminizinc
           ref: master
       - name: Checkout edge MiniZinc
         if: ${{ env.STABLE == 'no' }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: minizinc/libminizinc
           ref: develop
@@ -43,7 +43,7 @@ jobs:
         run: echo "key=minizinc-$(git rev-parse HEAD)-${{ hashFiles('vendor/version.json') }}" >> $GITHUB_OUTPUT
       - name: Cache MiniZinc Build
         id: cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: minizinc
           key: ${{ steps.get-cache-key.outputs.key }}
@@ -62,7 +62,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: cmake --build build --config Release --target install -j 2
       - name: Upload package artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: minizinc
           path: minizinc/
@@ -76,16 +76,16 @@ jobs:
       MZN_WASM_DIR: ${{ github.workspace }}/minizinc
       MZN_NODE_BINARY: ${{ github.workspace }}/native/bin/minizinc
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Cache MiniZinc
         id: cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: minizinc
           key: ${{ needs.minizinc.outputs.cache-key }}
       - name: Fetch MiniZinc
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: minizinc
           path: ${{ github.workspace }}/minizinc
@@ -99,7 +99,7 @@ jobs:
         uses: docker://minizinc/minizinc:edge
         with:
           args: sh -c "mkdir -p $GITHUB_WORKSPACE/native && cp -v -r /usr/local/* $GITHUB_WORKSPACE/native"
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
       - name: Install dependencies
@@ -130,12 +130,12 @@ jobs:
       - name: Create package
         run: npm pack
       - name: Upload docs artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docs
           path: docs/
       - name: Upload package artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: package
           path: minizinc-*.tgz
@@ -146,12 +146,12 @@ jobs:
     needs: [build]
     if: ${{ github.event_name != 'pull_request' && ( startsWith(github.ref, 'refs/tags/v') || github.ref_name == 'develop' ) }}
     steps:
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org
       - name: Fetch package
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: package
           path: ${{ github.workspace }}
@@ -183,7 +183,7 @@ jobs:
     if: ${{ github.event_name != 'pull_request' && ( github.ref_name == 'develop' || github.ref_name == 'stable' || startsWith(github.ref, 'refs/tags/v') ) }}
     steps:
       - name: Fetch documentation
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: docs
           path: ${{ github.workspace }}/docs
@@ -196,7 +196,7 @@ jobs:
           sed -i 's/npm install minizinc/npm install minizinc@edge/g' docs/index.html
           sed -i 's#https://js.minizinc.dev/docs/stable/#https://js.minizinc.dev/docs/develop/#g' docs/index.html
       - name: Publish documentation
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
