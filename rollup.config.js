@@ -6,11 +6,11 @@ import alias from "@rollup/plugin-alias";
 import path from "path";
 import fs from "fs";
 
-const pkg = JSON.parse(fs.readFileSync('./package.json'));
+const pkg = JSON.parse(fs.readFileSync("./package.json"));
 
 const testing = process.env.TEST;
 const production = !process.env.ROLLUP_WATCH && !testing;
-const minizincInstallDir = process.env.MZN_WASM_DIR || ".";
+const minizincInstallDir = path.resolve(process.env.MZN_WASM_DIR || ".");
 
 const browser = (output, src) => ({
   input: "src/browser.js",
