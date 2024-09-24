@@ -67,18 +67,81 @@ jobs:
           name: minizinc
           path: minizinc/
 
+  findmus:
+    name: Build wasm version of FindMUS
+    runs-on: ubuntu-latest
+    needs: minizinc
+    container: emscripten/emsdk
+    outputs:
+      cache-key: ${{ steps.get-cache-key.outputs.key }}
+      cache-hit: ${{ steps.cache.outputs.cache-hit }}
+    steps:
+      - name: Workaround for https://github.com/actions/runner/issues/2033
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+      - name: Checkout latest FindMUS
+        if: ${{ env.STABLE == 'yes' }}
+        shell: bash
+        run: git clone --branch feat/wasm --single-branch https://gitlab.com/minizinc/FindMUS.git .
+      - name: Checkout edge FindMUS
+        if: ${{ env.STABLE == 'no' }}
+        shell: bash
+        run: git clone --branch feat/wasm --single-branch https://gitlab.com/minizinc/FindMUS.git .
+      - name: Download vendor
+        run: ./download_vendor
+        env:
+          MZNARCH: wasm
+      - name: Download MiniZinc
+        uses: actions/download-artifact@v4
+        with:
+          name: minizinc
+          path: vendor/minizinc/
+      - name: Copy MiniZinc share/ for FindMUS
+        shell: bash
+        run: mv vendor/minizinc/share/ .
+      - name: Get FindMUS cache key
+        id: get-cache-key
+        run: echo "key=findmus-$(git rev-parse HEAD)-${{ hashFiles('vendor/version.json') }}" >> $GITHUB_OUTPUT
+      - name: Cache FindMUS Build
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: findmus
+          key: ${{ steps.get-cache-key.outputs.key }}
+      - name: Configure FindMUS
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          emcmake cmake -S . -B build \
+          -DCMAKE_FIND_ROOT_PATH="/" \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DGecode_ROOT="$GITHUB_WORKSPACE/vendor/gecode" \
+          -DOsiCBC_ROOT="$GITHUB_WORKSPACE/vendor/cbc" \
+          -Dchuffed_ROOT="$GITHUB_WORKSPACE/vendor/chuffed" \
+          -DHIGHS_ROOT="$GITHUB_WORKSPACE/vendor/highs" \
+          -Dlibminizinc_ROOT="$GITHUB_WORKSPACE/vendor/minizinc" \
+          -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/vendor/minizinc/lib/cmake/libminizinc:$GITHUB_WORKSPACE/vendor/highs/lib/cmake/highs:$GITHUB_WORKSPACE/vendor/chuffed/lib/cmake/chuffed" \
+          -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/findmus"
+      - name: Build FindMUS
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: cmake --build build --config Release --target install -j 2
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: findmus
+          path: findmus/
+
   build:
     name: Build and test minizinc-js
     runs-on: ubuntu-latest
-    needs: [minizinc]
-    if: github.event_name != 'schedule' || needs.minizinc.outputs.cache-hit != 'true'
+    needs: [minizinc, findmus]
+    if: github.event_name != 'schedule' || needs.minizinc.outputs.cache-hit != 'true' || needs.findmus.outputs.cache-hit != 'true'
     env:
       MZN_WASM_DIR: ${{ github.workspace }}/minizinc
       MZN_NODE_BINARY: ${{ github.workspace }}/native/bin/minizinc
     steps:
       - uses: actions/checkout@v4
       - name: Cache MiniZinc
-        id: cache
+        id: cache-mzn
         uses: actions/cache@v4
         with:
           path: minizinc
@@ -89,6 +152,18 @@ jobs:
         with:
           name: minizinc
           path: ${{ github.workspace }}/minizinc
+      - name: Cache FindMUS
+        id: cache-findmus
+        uses: actions/cache@v4
+        with:
+          path: findmus
+          key: ${{ needs.minizinc.outputs.cache-key }}
+      - name: Fetch FindMUS
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: findmus
+          path: ${{ github.workspace }}/findmus
       - name: Fetch latest MiniZinc image
         if: ${{ env.STABLE == 'yes' }}
         uses: docker://minizinc/minizinc:latest
