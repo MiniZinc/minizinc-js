@@ -1,6 +1,6 @@
 {
   "name": "minizinc",
-  "version": "4.4.3",
+  "version": "4.4.4",
   "description": "JavaScript API for MiniZinc",
   "homepage": "https://js.minizinc.dev",
   "types": "types/index.d.ts",
@@ -42,10 +42,10 @@
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-replace": "^6.0.2",
     "@rollup/plugin-url": "^8.0.2",
-    "jest": "^30.1.3",
-    "rollup": "^4.50.1",
+    "jest": "^30.2.0",
+    "rollup": "^4.52.3",
     "rollup-plugin-copy": "^3.5.0",
-    "typedoc": "^0.28.12",
+    "typedoc": "^0.28.13",
     "web-worker": "1.3.0"
   }
 }
