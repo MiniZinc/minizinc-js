@@ -105,10 +105,6 @@ export class Model {
   }
   addFile(filename, contents, use = true) {
     if (typeof contents !== "string") {
-      if (filename in this.vfs) {
-        this._addToRun(filename, use);
-        return;
-      }
       throw new Error("Missing file contents argument");
     }
     this.vfs[filename] = contents;
