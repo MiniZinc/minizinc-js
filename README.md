@@ -157,7 +157,7 @@ model.addString('int: z;');
 // Add data in DZN format
 model.addDznString('y = 1;');
 // Add data from a JSON object
-model.addJSON({z: 2});
+model.addJson({z: 2});
 ```
 
 ### Solving
