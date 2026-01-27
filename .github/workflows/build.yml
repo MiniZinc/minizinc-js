@@ -7,6 +7,10 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 env:
   STABLE: ${{ (github.ref_name == 'stable' || startsWith(github.ref, 'refs/tags/v')) && 'yes' || 'no' }}
 
@@ -158,23 +162,23 @@ jobs:
       - name: Publish edge version
         if: ${{ github.ref_name == 'develop' }}
         run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
+          if [ "$NPM_PUBLISH" == "yes" ]; then
             npm publish minizinc-*.tgz --tag edge --dry-run
           else
             npm publish minizinc-*.tgz --tag edge
           fi
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_PUBLISH: ${{ vars.NPM_PUBLISH }}
       - name: Publish latest version
         if: ${{ startsWith(github.ref, 'refs/tags/v') }}
         run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
+          if [ "$NPM_PUBLISH" == "yes" ]; then
             npm publish minizinc-*.tgz --dry-run
           else
             npm publish minizinc-*.tgz
           fi
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_PUBLISH: ${{ vars.NPM_PUBLISH }}
 
   pages:
     name: Publish documentation
