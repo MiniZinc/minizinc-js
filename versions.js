@@ -49,12 +49,14 @@ window.addEventListener('load', async () => {
             window.location.href = select.value;
         });
         const container = document.createElement('span');
-        container.style.paddingLeft = '1rem';
+        container.style.marginRight = 'auto';
         container.style.position = 'relative';
         container.style.zIndex = 2;
         container.appendChild(select);
-        const target = document.getElementById('tsd-search');
-        target.appendChild(container);
+
+        const title = document.querySelector('.tsd-toolbar-contents > .title');
+        title.style.marginRight = '1rem';
+        title.parentNode.insertBefore(container, title.nextSibling);
     } catch (e) {
         console.error(e);
     }
