@@ -81,6 +81,7 @@ const node = (output) => ({
     "node:fs/promises",
     "node:path",
     "node:os",
+    "node:crypto",
   ],
 });
 

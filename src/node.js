@@ -6,6 +6,7 @@ import rl from "node:readline";
 import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
+import crypto from "node:crypto";
 
 let settings = { minizinc: "minizinc", _executable: "minizinc" };
 
@@ -37,36 +38,25 @@ export class Model {
   constructor() {
     this.vfs = {};
     this._toRun = [];
-    this.unnamedCount = 0;
   }
   clone() {
     const clone = new Model();
     clone.vfs = { ...this.vfs };
-    clone._toRun = [...this.toRun];
-    clone.unnamedCount = this.unnamedCount;
+    clone._toRun = [...this._toRun];
     return clone;
   }
   addString(model) {
-    let filename = `_mzn_${this.unnamedCount++}.mzn`;
-    while (filename in this.vfs) {
-      filename = `_mzn_${this.unnamedCount++}.mzn`;
-    }
+    const filename = `_mzn_${crypto.randomUUID()}.mzn`;
     this._addVirtual(filename, model);
     return filename;
   }
   addDznString(dzn) {
-    let filename = `_dzn_${this.unnamedCount++}.dzn`;
-    while (filename in this.vfs) {
-      filename = `_dzn_${this.unnamedCount++}.dzn`;
-    }
+    const filename = `_dzn_${crypto.randomUUID()}.dzn`;
     this._addVirtual(filename, dzn);
     return filename;
   }
   addJson(data) {
-    let filename = `_json_${this.unnamedCount++}.json`;
-    while (filename in this.vfs) {
-      filename = `_json_${this.unnamedCount++}.json`;
-    }
+    const filename = `_json_${crypto.randomUUID()}.json`;
     this._addVirtual(filename, JSON.stringify(data));
     return filename;
   }
@@ -109,11 +99,7 @@ export class Model {
       const preArgs = ["--json-stream"];
       const tempdir = await fs.mkdtemp(path.join(os.tmpdir(), "mzn"));
       if (options) {
-        let mpcFile = `_mzn_${this.unnamedCount++}.mpc`;
-        while (mpcFile in this.vfs) {
-          mpcFile = `_mzn_${this.unnamedCount++}.mpc`;
-        }
-        mpcFile = path.join(tempdir, mpcFile);
+        const mpcFile = path.join(tempdir, `_mzn_${crypto.randomUUID()}.mpc`);
         await fs.writeFile(mpcFile, JSON.stringify(options));
         preArgs.push(mpcFile);
       }
