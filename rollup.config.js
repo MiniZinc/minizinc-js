@@ -62,7 +62,9 @@ const worker = (output) => ({
       ],
       verbose: true,
     }),
-    commonjs({ ignore: ["crypto", "fs", "fs/promises", "path", "perf_hooks", "ws"] }),
+    commonjs({
+      ignore: _id => true,
+    }),
     production && terser(),
   ],
 });
