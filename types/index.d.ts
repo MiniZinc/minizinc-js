@@ -380,7 +380,7 @@ export interface ParamConfig {
  */
 export interface ErrorMessage {
   /** Message type */
-  type: "error";
+  type: 'error';
   /** The kind of error which occurred */
   what: string;
   /** The error message */
@@ -400,7 +400,7 @@ export interface ErrorMessage {
  */
 export interface WarningMessage {
   /** Message type  */
-  type: "warning";
+  type: 'warning';
   /** The kind of warning which occurred */
   what: string;
   /** The error message */
@@ -448,13 +448,13 @@ export interface StackItem {
  */
 export interface ModelInterface {
   /** Message type */
-  type: "interface";
+  type: 'interface';
   /** Model input parameters */
   input: { [name: string]: VarType };
   /** Model output variables */
   output: { [name: string]: VarType };
   /** Solve method */
-  method: "sat" | "min" | "max";
+  method: 'sat' | 'min' | 'max';
   /** Whether there is an output item present */
   has_output_item: boolean;
   /** Files included */
@@ -468,7 +468,7 @@ export interface ModelInterface {
  */
 export interface VarType {
   /** Type of variable */
-  type: "int" | "float" | "bool" | "string";
+  type: 'int' | 'float' | 'bool' | 'string';
   /** Number of array dimensions if this is an array */
   dim?: number;
   /** Whether or not this variable is a set */
@@ -518,7 +518,7 @@ export interface Output {
  */
 export interface SolutionMessage {
   /** Message type */
-  type: "solution";
+  type: 'solution';
   /** Time in milliseconds (if run with `output-time: true`) */
   time?: number;
   /** Mapping between output section name and contents */
@@ -534,7 +534,7 @@ export interface SolutionMessage {
  */
 export interface CheckerMessage {
   /** Message type */
-  type: "checker";
+  type: 'checker';
   /** Time in milliseconds (if run with `output-time: true`) */
   time?: number;
   /** Messages produced by the checker */
@@ -556,21 +556,21 @@ export interface CheckerMessage {
  */
 export type Status =
   /** All solutions found for a satisfaction problem */
-  | "ALL_SOLUTIONS"
+  | 'ALL_SOLUTIONS'
   /** Optimal solution found for an optimisation problem */
-  | "OPTIMAL_SOLUTION"
+  | 'OPTIMAL_SOLUTION'
   /** Problem is unsatisfiable */
-  | "UNSATISFIABLE"
+  | 'UNSATISFIABLE'
   /** Problem is unbounded */
-  | "UNBOUNDED"
+  | 'UNBOUNDED'
   /** Problem is unsatisfiable or unbounded */
-  | "UNSAT_OR_UNBOUNDED"
+  | 'UNSAT_OR_UNBOUNDED'
   /** Problem is satisfied */
-  | "SATISFIED"
+  | 'SATISFIED'
   /** Status is unknown */
-  | "UNKNOWN"
+  | 'UNKNOWN'
   /** An error occurred */
-  | "ERROR";
+  | 'ERROR';
 
 /**
  * Event emitted when the final status is emitted by the solver.
@@ -581,7 +581,7 @@ export type Status =
  */
 export interface StatusMessage {
   /** Message type */
-  type: "status";
+  type: 'status';
   /** Status */
   status: Status;
   /** Time in milliseconds (if run with `output-time: true`) */
@@ -595,7 +595,7 @@ export interface StatusMessage {
  */
 export interface StatisticsMessage {
   /** Message type */
-  type: "statistics";
+  type: 'statistics';
   /** Mapping between statistic name and value */
   statistics: { [key: string]: any };
 }
@@ -608,7 +608,7 @@ export interface StatisticsMessage {
  */
 export interface TimestampMessage {
   /** Message type */
-  type: "time";
+  type: 'time';
   /** Time in milliseconds */
   time: number;
 }
@@ -620,7 +620,7 @@ export interface TimestampMessage {
  */
 export interface TraceMessage {
   /** Message type */
-  type: "trace";
+  type: 'trace';
   /** Output section */
   section: string;
   /** Trace message (usually a string, but may be an array if the section ends
@@ -637,7 +637,7 @@ export interface TraceMessage {
  */
 export interface ExitMessage {
   /** Message type */
-  type: "exit";
+  type: 'exit';
   /** Exit code, or null if the process was interrupted */
   code: number | null;
   /** Possible message if there was an error */
@@ -701,11 +701,11 @@ export interface CompilationProgress extends PromiseLike<string> {
    * });
    * ```
    */
-  on(event: "statistics", callback: (e: StatisticsMessage) => void): void;
-  on(event: "trace", callback: (e: TraceMessage) => void): void;
-  on(event: "error", callback: (e: ErrorMessage) => void): void;
-  on(event: "warning", callback: (e: WarningMessage) => void): void;
-  on(event: "exit", callback: (e: ExitMessage) => void): void;
+  on(event: 'statistics', callback: (e: StatisticsMessage) => void): void;
+  on(event: 'trace', callback: (e: TraceMessage) => void): void;
+  on(event: 'error', callback: (e: ErrorMessage) => void): void;
+  on(event: 'warning', callback: (e: WarningMessage) => void): void;
+  on(event: 'exit', callback: (e: ExitMessage) => void): void;
   on(event: string, callback: (e: object) => void): void;
 
   /** Stop listening for an event.
@@ -782,15 +782,15 @@ export interface SolveProgress extends PromiseLike<SolveResult> {
    * });
    * ```
    */
-  on(event: "solution", callback: (e: SolutionMessage) => void): void;
-  on(event: "checker", callback: (e: CheckerMessage) => void): void;
-  on(event: "status", callback: (e: StatusMessage) => void): void;
-  on(event: "statistics", callback: (e: StatisticsMessage) => void): void;
-  on(event: "timestamp", callback: (e: TimestampMessage) => void): void;
-  on(event: "trace", callback: (e: TraceMessage) => void): void;
-  on(event: "error", callback: (e: ErrorMessage) => void): void;
-  on(event: "warning", callback: (e: WarningMessage) => void): void;
-  on(event: "exit", callback: (e: ExitMessage) => void): void;
+  on(event: 'solution', callback: (e: SolutionMessage) => void): void;
+  on(event: 'checker', callback: (e: CheckerMessage) => void): void;
+  on(event: 'status', callback: (e: StatusMessage) => void): void;
+  on(event: 'statistics', callback: (e: StatisticsMessage) => void): void;
+  on(event: 'timestamp', callback: (e: TimestampMessage) => void): void;
+  on(event: 'trace', callback: (e: TraceMessage) => void): void;
+  on(event: 'error', callback: (e: ErrorMessage) => void): void;
+  on(event: 'warning', callback: (e: WarningMessage) => void): void;
+  on(event: 'exit', callback: (e: ExitMessage) => void): void;
   on(event: string, callback: (e: object) => void): void;
 
   /** Stop listening for an event.

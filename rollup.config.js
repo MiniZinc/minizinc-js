@@ -1,19 +1,19 @@
-import commonjs from "@rollup/plugin-commonjs";
-import copy from "rollup-plugin-copy";
-import { terser } from "@el3um4s/rollup-plugin-terser";
-import replace from "@rollup/plugin-replace";
-import alias from "@rollup/plugin-alias";
-import path from "path";
-import fs from "fs";
+import commonjs from '@rollup/plugin-commonjs';
+import copy from 'rollup-plugin-copy';
+import terser from '@rollup/plugin-terser';
+import replace from '@rollup/plugin-replace';
+import alias from '@rollup/plugin-alias';
+import path from 'path';
+import fs from 'fs';
 
-const pkg = JSON.parse(fs.readFileSync("./package.json"));
+const pkg = JSON.parse(fs.readFileSync('./package.json'));
 
 const testing = process.env.TEST;
 const production = !process.env.ROLLUP_WATCH && !testing;
-const minizincInstallDir = path.resolve(process.env.MZN_WASM_DIR || ".");
+const minizincInstallDir = path.resolve(process.env.MZN_WASM_DIR || '.');
 
 const browser = (output, src) => ({
-  input: "src/browser.js",
+  input: 'src/browser.js',
   output: {
     sourcemap: !production,
     ...output,
@@ -21,18 +21,18 @@ const browser = (output, src) => ({
   plugins: [
     production && terser(),
     replace({
-      URL_BASE: src || "document.currentScript.src",
+      URL_BASE: src || 'document.currentScript.src',
       PACKAGE_VERSION: JSON.stringify(pkg.version),
       preventAssignment: true,
       ...(testing && {
-        _workerUrl: "settings.workerURL",
+        _workerUrl: 'settings.workerURL',
       }),
     }),
   ],
 });
 
-const worker = (output) => ({
-  input: "src/worker.js",
+const worker = output => ({
+  input: 'src/worker.js',
   output: {
     sourcemap: !production,
     ...output,
@@ -41,8 +41,8 @@ const worker = (output) => ({
     alias({
       entries: [
         {
-          find: "minizinc-bin",
-          replacement: path.join(minizincInstallDir, "/bin/minizinc.js"),
+          find: 'minizinc-bin',
+          replacement: path.join(minizincInstallDir, '/bin/minizinc.js'),
         },
       ],
     }),
@@ -51,13 +51,13 @@ const worker = (output) => ({
         {
           src: [
             path
-              .join(minizincInstallDir, "/bin/minizinc.data")
-              .replace(/\\/g, "/"),
+              .join(minizincInstallDir, '/bin/minizinc.data')
+              .replace(/\\/g, '/'),
             path
-              .join(minizincInstallDir, "/bin/minizinc.wasm")
-              .replace(/\\/g, "/"),
+              .join(minizincInstallDir, '/bin/minizinc.wasm')
+              .replace(/\\/g, '/'),
           ],
-          dest: "dist",
+          dest: 'dist',
         },
       ],
       verbose: true,
@@ -69,20 +69,20 @@ const worker = (output) => ({
   ],
 });
 
-const node = (output) => ({
-  input: "src/node.js",
+const node = output => ({
+  input: 'src/node.js',
   output: {
     sourcemap: !production,
     ...output,
   },
   plugins: [production && terser()],
   external: [
-    "node:child_process",
-    "node:events",
-    "node:readline",
-    "node:fs/promises",
-    "node:path",
-    "node:os",
+    'node:child_process',
+    'node:events',
+    'node:readline',
+    'node:fs/promises',
+    'node:path',
+    'node:os',
   ],
 });
 
@@ -91,49 +91,49 @@ const configs = testing
       // Bundles for running tests
       browser(
         {
-          file: "dist/test-minizinc.cjs",
-          format: "cjs",
+          file: 'dist/test-minizinc.cjs',
+          format: 'cjs',
         },
-        "`file:///${__dirname}`"
+        '`file:///${__dirname}`'
       ),
       worker({
-        file: "dist/test-minizinc-worker.cjs",
-        format: "cjs",
+        file: 'dist/test-minizinc-worker.cjs',
+        format: 'cjs',
       }),
       node({
-        file: "dist/test-minizinc-node.cjs",
-        format: "cjs",
+        file: 'dist/test-minizinc-node.cjs',
+        format: 'cjs',
       }),
     ]
   : [
       // Bundles for distribution
       browser({
-        name: "MiniZinc",
-        file: "dist/minizinc.js",
-        format: "iife",
+        name: 'MiniZinc',
+        file: 'dist/minizinc.js',
+        format: 'iife',
       }),
       browser(
         {
-          file: "dist/minizinc.mjs",
-          format: "es",
+          file: 'dist/minizinc.mjs',
+          format: 'es',
         },
-        "import.meta.url"
+        'import.meta.url'
       ),
       browser({
-        file: "dist/minizinc.cjs",
-        format: "cjs",
+        file: 'dist/minizinc.cjs',
+        format: 'cjs',
       }),
       worker({
-        file: "dist/minizinc-worker.js",
-        format: "iife",
+        file: 'dist/minizinc-worker.js',
+        format: 'iife',
       }),
       node({
-        file: "dist/minizinc-node.cjs",
-        format: "cjs",
+        file: 'dist/minizinc-node.cjs',
+        format: 'cjs',
       }),
       node({
-        file: "dist/minizinc-node.mjs",
-        format: "es",
+        file: 'dist/minizinc-node.mjs',
+        format: 'es',
       }),
     ];
 

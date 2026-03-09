@@ -1,0 +1,19 @@
+name: Check formatting of code
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  format:
+    name: Check code formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Install dependencies
+        run: npm ci
+      - name: Check formatting
+        run: npm run format:check
