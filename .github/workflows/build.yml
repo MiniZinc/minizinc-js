@@ -43,7 +43,7 @@ jobs:
         run: echo "key=minizinc-$(git rev-parse HEAD)-${{ hashFiles('vendor/version.json') }}" >> $GITHUB_OUTPUT
       - name: Cache MiniZinc Build
         id: cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: minizinc
           key: ${{ steps.get-cache-key.outputs.key }}
@@ -81,7 +81,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Cache MiniZinc
         id: cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: minizinc
           key: ${{ needs.minizinc.outputs.cache-key }}
