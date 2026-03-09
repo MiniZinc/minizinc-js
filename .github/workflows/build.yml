@@ -87,7 +87,7 @@ jobs:
           key: ${{ needs.minizinc.outputs.cache-key }}
       - name: Fetch MiniZinc
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: minizinc
           path: ${{ github.workspace }}/minizinc
@@ -159,7 +159,7 @@ jobs:
           node-version: lts/*
           registry-url: https://registry.npmjs.org
       - name: Fetch package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: package
           path: ${{ github.workspace }}
@@ -193,7 +193,7 @@ jobs:
       contents: write
     steps:
       - name: Fetch documentation
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: docs
           path: ${{ github.workspace }}/docs
