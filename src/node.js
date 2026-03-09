@@ -1,13 +1,13 @@
 // Controller used in node environments which uses child processes instead of wasm
 
-import child_process from "node:child_process";
-import EventEmitter from "node:events";
-import rl from "node:readline";
-import fs from "node:fs/promises";
-import path from "node:path";
-import os from "node:os";
+import child_process from 'node:child_process';
+import EventEmitter from 'node:events';
+import rl from 'node:readline';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
 
-let settings = { minizinc: "minizinc", _executable: "minizinc" };
+let settings = { minizinc: 'minizinc', _executable: 'minizinc' };
 
 export async function init(cfg) {
   if (cfg) {
@@ -28,7 +28,7 @@ export async function init(cfg) {
 const childProcesses = new Set();
 export function shutdown() {
   for (const proc of childProcesses) {
-    proc.kill("SIGKILL");
+    proc.kill('SIGKILL');
   }
   childProcesses.clear();
 }
@@ -73,12 +73,12 @@ export class Model {
   _add_toRun(filename, use) {
     if (
       use &&
-      (filename.endsWith(".mzn") ||
-        filename.endsWith(".mzc") ||
-        filename.endsWith(".dzn") ||
-        filename.endsWith(".json") ||
-        filename.endsWith(".mpc") ||
-        filename.endsWith(".fzn")) &&
+      (filename.endsWith('.mzn') ||
+        filename.endsWith('.mzc') ||
+        filename.endsWith('.dzn') ||
+        filename.endsWith('.json') ||
+        filename.endsWith('.mpc') ||
+        filename.endsWith('.fzn')) &&
       this._toRun.indexOf(filename) === -1
     ) {
       this._toRun.push(filename);
@@ -89,7 +89,7 @@ export class Model {
     this._add_toRun(filename, use);
   }
   addFile(filename, contents = null, use = true) {
-    if (typeof contents === "string") {
+    if (typeof contents === 'string') {
       this._addVirtual(filename, contents, use);
     } else {
       this._add_toRun(filename, use);
@@ -98,16 +98,16 @@ export class Model {
   _run(args, options, outputFiles) {
     const emitter = new EventEmitter();
     let proc = null;
-    emitter.on("sigint", () => {
+    emitter.on('sigint', () => {
       if (proc) {
-        proc.kill("SIGINT");
+        proc.kill('SIGINT');
       } else {
         proc = false;
       }
     });
     (async () => {
-      const preArgs = ["--json-stream"];
-      const tempdir = await fs.mkdtemp(path.join(os.tmpdir(), "mzn"));
+      const preArgs = ['--json-stream'];
+      const tempdir = await fs.mkdtemp(path.join(os.tmpdir(), 'mzn'));
       if (options) {
         let mpcFile = `_mzn_${this.unnamedCount++}.mpc`;
         while (mpcFile in this.vfs) {
@@ -121,17 +121,17 @@ export class Model {
         await fs.writeFile(path.join(tempdir, key), this.vfs[key]);
       }
       if (proc === false) {
-        emitter.emit("exit", { code: 0 });
+        emitter.emit('exit', { code: 0 });
         return;
       }
       proc = child_process.spawn(settings._executable, [
         ...preArgs,
-        ...args.map((x) =>
+        ...args.map(x =>
           outputFiles && outputFiles.indexOf(x) !== -1
             ? path.join(tempdir, x)
             : x
         ),
-        ...this._toRun.map((x) => {
+        ...this._toRun.map(x => {
           if (x in this.vfs) {
             return path.join(tempdir, x);
           } else {
@@ -141,13 +141,13 @@ export class Model {
       ]);
       childProcesses.add(proc);
       const stdout = rl.createInterface(proc.stdout);
-      stdout.on("line", async (line) => {
+      stdout.on('line', async line => {
         try {
           const obj = JSON.parse(line);
           if (
-            "location" in obj &&
-            "filename" in obj.location &&
-            typeof obj.location.filename === "string" &&
+            'location' in obj &&
+            'filename' in obj.location &&
+            typeof obj.location.filename === 'string' &&
             obj.location.filename.indexOf(tempdir) === 0
           ) {
             // Strip prefix from filename
@@ -155,12 +155,12 @@ export class Model {
               tempdir.length
             );
           }
-          if ("stack" in obj && Array.isArray(obj.stack)) {
+          if ('stack' in obj && Array.isArray(obj.stack)) {
             for (const s of obj.stack) {
               if (
-                "location" in s &&
-                "filename" in s.location &&
-                typeof s.location.filename === "string" &&
+                'location' in s &&
+                'filename' in s.location &&
+                typeof s.location.filename === 'string' &&
                 s.location.filename.indexOf(tempdir) === 0
               ) {
                 // Strip prefix from filename
@@ -172,31 +172,31 @@ export class Model {
           }
           emitter.emit(obj.type, obj);
         } catch (e) {
-          emitter.emit("stdout", { type: "stdout", value: line });
+          emitter.emit('stdout', { type: 'stdout', value: line });
         }
       });
       const stderr = rl.createInterface(proc.stderr);
-      stderr.on("line", async (line) => {
-        emitter.emit("stderr", line);
+      stderr.on('line', async line => {
+        emitter.emit('stderr', line);
       });
-      proc.on("exit", async (c, signal) => {
+      proc.on('exit', async (c, signal) => {
         childProcesses.delete(proc);
         const exitMessage = {
-          type: "exit",
-          code: signal === "SIGINT" ? null : c,
+          type: 'exit',
+          code: signal === 'SIGINT' ? null : c,
         };
         if (outputFiles) {
           exitMessage.outputFiles = {};
           for (const key of outputFiles) {
             try {
               exitMessage.outputFiles[key] = await fs.readFile(key, {
-                encoding: "utf8",
+                encoding: 'utf8',
               });
             } catch (e) {
               try {
                 exitMessage.outputFiles[key] = await fs.readFile(
                   path.join(tempdir, key),
-                  { encoding: "utf8" }
+                  { encoding: 'utf8' }
                 );
               } catch (e) {
                 exitMessage.outputFiles[key] = null;
@@ -204,7 +204,7 @@ export class Model {
             }
           }
         }
-        emitter.emit("exit", exitMessage);
+        emitter.emit('exit', exitMessage);
         fs.rm(tempdir, { recursive: true, force: true });
       });
     })();
@@ -212,22 +212,22 @@ export class Model {
   }
   check(cfg) {
     const config = { ...cfg };
-    const proc = this._run(["--model-check-only"], config.options);
+    const proc = this._run(['--model-check-only'], config.options);
     const errors = [];
-    proc.on("error", (e) => errors.push(e));
+    proc.on('error', e => errors.push(e));
     return new Promise((resolve, _reject) => {
-      proc.on("exit", (e) => resolve(errors));
+      proc.on('exit', e => resolve(errors));
     });
   }
   interface(cfg) {
     const config = { ...cfg };
-    const proc = this._run(["--model-interface-only"], config.options);
+    const proc = this._run(['--model-interface-only'], config.options);
     const errors = [];
     let iface = null;
-    proc.on("error", (e) => errors.push(e));
-    proc.on("interface", (e) => (iface = e));
+    proc.on('error', e => errors.push(e));
+    proc.on('interface', e => (iface = e));
     return new Promise((resolve, reject) => {
-      proc.on("exit", (e) => {
+      proc.on('exit', e => {
         if (e.code === 0) {
           resolve(iface);
         } else {
@@ -243,12 +243,12 @@ export class Model {
     while (out in this.vfs) {
       out = `_fzn_${i++}.fzn`;
     }
-    const args = ["-c", "--fzn", out];
+    const args = ['-c', '--fzn', out];
     let running = true;
     let error = null;
     const proc = this._run(args, config.options, [out]);
-    proc.on("exit", () => (running = false));
-    proc.on("error", (e) => {
+    proc.on('exit', () => (running = false));
+    proc.on('error', e => {
       if (!error) error = e;
     });
     return {
@@ -256,12 +256,12 @@ export class Model {
         return running;
       },
       cancel() {
-        proc.emit("sigint");
+        proc.emit('sigint');
       },
       on: (event, listener) => proc.on(event, listener),
       off: (event, listener) => proc.off(event, listener),
       then(resolve, reject) {
-        proc.on("exit", (e) => {
+        proc.on('exit', e => {
           if (e.code === 0) {
             resolve(e.outputFiles[out]);
           } else {
@@ -278,32 +278,32 @@ export class Model {
   }
   solve(cfg) {
     const config = { jsonOutput: true, ...cfg };
-    const args = ["-i"]; // Always use intermediate solutions
+    const args = ['-i']; // Always use intermediate solutions
     if (config.jsonOutput) {
-      args.push("--output-mode");
-      args.push("json");
+      args.push('--output-mode');
+      args.push('json');
     }
     let running = true;
     let error = null;
     const proc = this._run(args, config.options);
-    proc.on("exit", () => (running = false));
+    proc.on('exit', () => (running = false));
     let solution = null;
     let statistics = {};
-    let status = "UNKNOWN";
-    proc.on("statistics", (e) => {
+    let status = 'UNKNOWN';
+    proc.on('statistics', e => {
       statistics = {
         ...statistics,
         ...e.statistics,
       };
     });
-    proc.on("solution", (e) => {
+    proc.on('solution', e => {
       solution = e;
-      status = "SATISFIED";
+      status = 'SATISFIED';
     });
-    proc.on("status", (e) => {
+    proc.on('status', e => {
       status = e.status;
     });
-    proc.on("error", (e) => {
+    proc.on('error', e => {
       if (!error) error = e;
     });
     return {
@@ -311,12 +311,12 @@ export class Model {
         return running;
       },
       cancel() {
-        proc.emit("sigint");
+        proc.emit('sigint');
       },
       on: (event, listener) => proc.on(event, listener),
       off: (event, listener) => proc.off(event, listener),
       then(resolve, reject) {
-        proc.on("exit", (e) => {
+        proc.on('exit', e => {
           if (e.code === 0) {
             resolve({
               status,
@@ -342,7 +342,7 @@ export function version() {
     let proc = null;
     proc = child_process.execFile(
       settings._executable,
-      ["--version"],
+      ['--version'],
       (error, stdout, stderr) => {
         childProcesses.delete(proc);
         if (error) {
@@ -360,7 +360,7 @@ export function solvers() {
     let proc = null;
     proc = child_process.execFile(
       settings._executable,
-      ["--solvers-json"],
+      ['--solvers-json'],
       (error, stdout, stderr) => {
         childProcesses.delete(proc);
         if (error) {
@@ -379,7 +379,7 @@ export function readStdlibFileContents(files) {
     let proc = null;
     proc = child_process.execFile(
       settings._executable,
-      ["--config-dirs"],
+      ['--config-dirs'],
       async (error, stdout, stderr) => {
         childProcesses.delete(proc);
         if (error) {
@@ -390,12 +390,12 @@ export function readStdlibFileContents(files) {
         for (const key of keys) {
           const p = path.join(mznStdlibDir, key);
           const rel = path.relative(mznStdlibDir, p);
-          if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) {
+          if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) {
             reject(`Unsupported file path ${key}`);
           }
           try {
             result[key] = await fs.readFile(p, {
-              encoding: "utf8",
+              encoding: 'utf8',
             });
           } catch (e) {
             result[key] = null;

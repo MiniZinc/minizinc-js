@@ -1,5 +1,4 @@
-JavaScript interface for MiniZinc
-=================================
+# JavaScript interface for MiniZinc
 
 [![Latest documentation](https://img.shields.io/badge/docs-latest-blue)](https://js.minizinc.dev/docs/stable)
 [![Latest package](https://img.shields.io/npm/v/minizinc/latest?color=blue)](https://www.npmjs.com/package/minizinc)
@@ -26,8 +25,8 @@ Using ECMAScript modules:
   const solve = model.solve({
     options: {
       solver: 'gecode',
-      'all-solutions': true
-    }
+      'all-solutions': true,
+    },
   });
   solve.on('solution', solution => {
     console.log(solution.output.json);
@@ -48,8 +47,8 @@ Using a traditional script:
   const solve = model.solve({
     options: {
       solver: 'gecode',
-      'all-solutions': true
-    }
+      'all-solutions': true,
+    },
   });
   solve.on('solution', solution => {
     console.log(solution.output.json);
@@ -122,7 +121,7 @@ MiniZinc.init({
   workerURL: 'http://localhost:3000/path/to/my-own-worker.js',
   // If these are omitted, searches next to the worker script
   wasmURL: 'http://localhost:3000/path/to/minizinc.wasm',
-  dataURL: 'http://localhost:3000/path/to/minizinc.data'
+  dataURL: 'http://localhost:3000/path/to/minizinc.data',
 }).then(() => {
   console.log('Ready');
 });
@@ -135,7 +134,7 @@ MiniZinc.init({
   // Executable name
   minizinc: 'minizinc',
   // Search paths (can omit to use PATH)
-  minizincPaths: ['/home/me/.local/bin', '/usr/local/bin']
+  minizincPaths: ['/home/me/.local/bin', '/usr/local/bin'],
 });
 ```
 
@@ -157,7 +156,7 @@ model.addString('int: z;');
 // Add data in DZN format
 model.addDznString('y = 1;');
 // Add data from a JSON object
-model.addJson({z: 2});
+model.addJson({ z: 2 });
 ```
 
 ### Solving
@@ -171,8 +170,8 @@ const solve = model.solve({
   options: {
     solver: 'gecode',
     'time-limit': 10000,
-    statistics: true
-  }
+    statistics: true,
+  },
 });
 // You can listen for events
 solve.on('solution', solution => console.log(solution.output.json));
@@ -190,7 +189,7 @@ During solving, MiniZinc emits events which can be subscribed to/unsubscribed fr
 methods. The events are those which appear in
 [Machine-readable JSON output format](https://minizinc.dev/doc-latest/en/json-stream.html),
 with the addition of the [`exit`](https://js.minizinc.dev/docs/stable/interfaces/ExitMessage.html)
-event, which can be used to detect when solving finishes (if you do not wish to await the 
+event, which can be used to detect when solving finishes (if you do not wish to await the
 [`SolveProgress`](https://js.minizinc.dev/docs/stable/interfaces/SolveProgress.html) object).
 
 By default, `--output-mode json` is used, allowing you to retrieve the model variable values
@@ -200,12 +199,12 @@ directly from the solution objects. Use
 
 ## Documentation
 
-For more detailed documentation of all available options and functionality, visit the 
+For more detailed documentation of all available options and functionality, visit the
 [API documentation](https://js.minizinc.dev/docs/stable/).
 
 ## Building
 
-### Compiling MiniZinc for WebAssembly 
+### Compiling MiniZinc for WebAssembly
 
 The WebAssembly build of MiniZinc requires [Emscripten](https://emscripten.org/).
 

@@ -12,7 +12,7 @@ function newWorker() {
   if (!workerObjectURL) {
     const importer = `importScripts(${JSON.stringify(settings.workerURL)});`;
     workerObjectURL = URL.createObjectURL(
-      new Blob([importer], { type: "text/javascript" })
+      new Blob([importer], { type: 'text/javascript' })
     );
   }
   const _workerUrl = workerObjectURL;
@@ -46,18 +46,18 @@ export async function init(cfg) {
   }
   if (workers.length > 0) {
     throw new Error(
-      "MiniZinc.init() called after library already used/initialised"
+      'MiniZinc.init() called after library already used/initialised'
     );
   }
   fillWorkerPool();
   await Promise.race(
     workers.map(
-      (worker) =>
-        new Promise((resolve) => {
+      worker =>
+        new Promise(resolve => {
           worker.worker.addEventListener(
-            "message",
-            (e) => {
-              if (e.data.type === "ready") {
+            'message',
+            e => {
+              if (e.data.type === 'ready') {
                 resolve();
               }
             },
@@ -115,12 +115,12 @@ export class Model {
     return filename;
   }
   addFile(filename, contents, use = true) {
-    if (typeof contents !== "string") {
+    if (typeof contents !== 'string') {
       if (filename in this.vfs) {
         this._addToRun(filename, use);
         return;
       }
-      throw new Error("Missing file contents argument");
+      throw new Error('Missing file contents argument');
     }
     this.vfs[filename] = contents;
     this._addToRun(filename, use);
@@ -128,12 +128,12 @@ export class Model {
   _addToRun(filename, use) {
     if (
       use &&
-      (filename.endsWith(".mzn") ||
-        filename.endsWith(".mzc") ||
-        filename.endsWith(".dzn") ||
-        filename.endsWith(".json") ||
-        filename.endsWith(".mpc") ||
-        filename.endsWith(".fzn")) &&
+      (filename.endsWith('.mzn') ||
+        filename.endsWith('.mzc') ||
+        filename.endsWith('.dzn') ||
+        filename.endsWith('.json') ||
+        filename.endsWith('.mpc') ||
+        filename.endsWith('.fzn')) &&
       this._toRun.indexOf(filename) === -1
     ) {
       this._toRun.push(filename);
@@ -164,16 +164,16 @@ export class Model {
     return new Promise((resolve, _reject) => {
       const config = { ...cfg };
       const { worker, runCount } = this._run(
-        ["--model-check-only"],
+        ['--model-check-only'],
         config.options
       );
       const errors = [];
-      worker.onmessage = (e) => {
+      worker.onmessage = e => {
         switch (e.data.type) {
-          case "error":
+          case 'error':
             errors.push(e.data);
             break;
-          case "exit":
+          case 'exit':
             if (runCount < 10) {
               workers.push({
                 worker,
@@ -193,20 +193,20 @@ export class Model {
     return new Promise((resolve, reject) => {
       const config = { ...cfg };
       const { worker, runCount } = this._run(
-        ["--model-interface-only"],
+        ['--model-interface-only'],
         config.options
       );
       const errors = [];
       let iface = null;
-      worker.onmessage = (e) => {
+      worker.onmessage = e => {
         switch (e.data.type) {
-          case "error":
+          case 'error':
             errors.push(e.data);
             break;
-          case "interface":
+          case 'interface':
             iface = e.data;
             break;
-          case "exit":
+          case 'exit':
             if (runCount < 10) {
               workers.push({
                 worker,
@@ -233,26 +233,26 @@ export class Model {
     while (out in this.vfs) {
       out = `_fzn_${i++}.fzn`;
     }
-    const args = ["-c", "--fzn", out];
+    const args = ['-c', '--fzn', out];
     const { worker } = this._run(args, config.options, [out]);
     // Don't reuse this worker, always create add a new one to the pool
     newWorker();
     let callbacks = {};
     let exited = false;
     let error = null;
-    worker.onmessage = (e) => {
+    worker.onmessage = e => {
       if (callbacks[e.data.type]) {
         for (const f of callbacks[e.data.type]) {
           f(e.data);
         }
       }
       switch (e.data.type) {
-        case "exit":
+        case 'exit':
           worker.terminate();
           exited = true;
           callbacks = {};
           break;
-        case "error":
+        case 'error':
           if (!error) error = e.data;
           break;
       }
@@ -265,9 +265,9 @@ export class Model {
         if (!exited) {
           exited = true;
           worker.terminate();
-          if (callbacks["exit"]) {
-            for (const f of callbacks["exit"]) {
-              f({ type: "exit", code: null });
+          if (callbacks['exit']) {
+            for (const f of callbacks['exit']) {
+              f({ type: 'exit', code: null });
             }
           }
           callbacks = {};
@@ -286,7 +286,7 @@ export class Model {
         }
       },
       then(resolve, reject) {
-        const onExit = (e) => {
+        const onExit = e => {
           if (e.code === 0) {
             resolve(e.outputFiles[out]);
           } else {
@@ -308,10 +308,10 @@ export class Model {
   }
   solve(cfg) {
     const config = { jsonOutput: true, ...cfg };
-    const args = ["-i"]; // Always use intermediate solutions
+    const args = ['-i']; // Always use intermediate solutions
     if (config.jsonOutput) {
-      args.push("--output-mode");
-      args.push("json");
+      args.push('--output-mode');
+      args.push('json');
     }
     const { worker } = this._run(args, config.options);
     // Don't reuse this worker, always create add a new one to the pool
@@ -321,33 +321,33 @@ export class Model {
     let exited = false;
     let solution = null;
     let statistics = {};
-    let status = "UNKNOWN";
-    worker.onmessage = (e) => {
+    let status = 'UNKNOWN';
+    worker.onmessage = e => {
       if (callbacks[e.data.type]) {
         for (const f of callbacks[e.data.type]) {
           f(e.data);
         }
       }
       switch (e.data.type) {
-        case "exit":
+        case 'exit':
           worker.terminate();
           exited = true;
           callbacks = {};
           break;
-        case "error":
+        case 'error':
           if (!error) error = e.data;
           break;
-        case "statistics":
+        case 'statistics':
           statistics = {
             ...statistics,
             ...e.data.statistics,
           };
           break;
-        case "solution":
+        case 'solution':
           solution = e.data;
-          status = "SATISFIED";
+          status = 'SATISFIED';
           break;
-        case "status":
+        case 'status':
           status = e.data.status;
           break;
       }
@@ -360,9 +360,9 @@ export class Model {
         if (!exited) {
           exited = true;
           worker.terminate();
-          if (callbacks["exit"]) {
-            for (const f of callbacks["exit"]) {
-              f({ type: "exit", code: null });
+          if (callbacks['exit']) {
+            for (const f of callbacks['exit']) {
+              f({ type: 'exit', code: null });
             }
           }
           callbacks = {};
@@ -381,7 +381,7 @@ export class Model {
         }
       },
       then(resolve, reject) {
-        const onExit = (e) => {
+        const onExit = e => {
           if (e.code === 0) {
             resolve({
               status,
@@ -413,10 +413,10 @@ export function version() {
     let { worker, runCount } = workers.pop();
     worker.postMessage({
       jsonStream: false,
-      args: ["--version"],
+      args: ['--version'],
     });
-    worker.onmessage = (e) => {
-      if (e.data.type === "exit") {
+    worker.onmessage = e => {
+      if (e.data.type === 'exit') {
         if (runCount < 10) {
           workers.push({
             worker,
@@ -442,10 +442,10 @@ export function solvers() {
     let { worker, runCount } = workers.pop();
     worker.postMessage({
       jsonStream: false,
-      args: ["--solvers-json"],
+      args: ['--solvers-json'],
     });
-    worker.onmessage = (e) => {
-      if (e.data.type === "exit") {
+    worker.onmessage = e => {
+      if (e.data.type === 'exit') {
         if (runCount < 10) {
           workers.push({
             worker,
@@ -473,8 +473,8 @@ export function readStdlibFileContents(files) {
     worker.postMessage({
       readStdlibFiles: keys,
     });
-    worker.onmessage = (e) => {
-      if (e.data.type === "readStdlibFiles") {
+    worker.onmessage = e => {
+      if (e.data.type === 'readStdlibFiles') {
         if (runCount < 10) {
           workers.push({
             worker,
@@ -489,7 +489,7 @@ export function readStdlibFileContents(files) {
         } else {
           resolve(e.data.files[files]);
         }
-      } else if (e.data.type === "error") {
+      } else if (e.data.type === 'error') {
         worker.terminate();
         newWorker();
         reject(e.data.message);
