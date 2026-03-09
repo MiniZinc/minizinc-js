@@ -24,13 +24,13 @@ jobs:
           git config --global --add safe.directory $GITHUB_WORKSPACE
       - name: Checkout latest MiniZinc
         if: ${{ env.STABLE == 'yes' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: minizinc/libminizinc
           ref: master
       - name: Checkout edge MiniZinc
         if: ${{ env.STABLE == 'no' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: minizinc/libminizinc
           ref: develop
@@ -78,7 +78,7 @@ jobs:
     outputs:
       version: ${{ steps.output-version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Cache MiniZinc
         id: cache
         uses: actions/cache@v5
