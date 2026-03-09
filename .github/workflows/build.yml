@@ -101,7 +101,7 @@ jobs:
         uses: docker://minizinc/minizinc:edge
         with:
           args: sh -c "mkdir -p $GITHUB_WORKSPACE/native && cp -v -r /usr/local/* $GITHUB_WORKSPACE/native"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: lts/*
       - name: Install dependencies
@@ -154,7 +154,7 @@ jobs:
       id-token: write # Required for OIDC
       contents: read
     steps:
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org
