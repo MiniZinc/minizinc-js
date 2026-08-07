@@ -137,6 +137,19 @@ addEventListener('message', async e => {
               }
               Module.stdoutBuffer.push(code);
               if (Module.jsonStream && code === 0x0a) {
+                // stderr may not have a newline yet. Make sure it is emitted
+                // before any message produced from stdout.
+                if (Module.stderrBuffer.length > 0) {
+                  const decoder = new TextDecoder('utf-8');
+                  const value = decoder.decode(
+                    new Uint8Array(Module.stderrBuffer)
+                  );
+                  postMessage({
+                    type: 'stderr',
+                    value,
+                  });
+                  Module.stderrBuffer = [];
+                }
                 const decoder = new TextDecoder('utf-8');
                 const line = decoder.decode(
                   new Uint8Array(Module.stdoutBuffer)
