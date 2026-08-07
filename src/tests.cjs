@@ -93,6 +93,7 @@ module.exports.commonTests = MiniZinc => {
     });
     try {
       await solve;
+      expect(true).toBe(false); // Should not reach here
     } catch (e) {
       expect(e.code).toBe(1);
       expect(typeof e.message).toBe('string');
@@ -155,5 +156,14 @@ module.exports.commonTests = MiniZinc => {
     await expect(MiniZinc.readStdlibFileContents('../foo')).rejects.toEqual(
       'Unsupported file path ../foo'
     );
+  });
+
+  test('Interleaved stderr handling', async () => {
+    const model = new MiniZinc.Model();
+    model.addString('constraint trace("foo"); constraint trace("bar");');
+    const solve = model.solve();
+    solve.on('stderr', e => expect(e.value).toBe('foobar'));
+    solve.on('status', e => expect(e.status).toBe('SATISFIED'));
+    await solve;
   });
 };

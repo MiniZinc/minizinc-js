@@ -2,7 +2,6 @@
 
 import child_process from 'node:child_process';
 import EventEmitter from 'node:events';
-import rl from 'node:readline';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
@@ -140,8 +139,20 @@ export class Model {
         }),
       ]);
       childProcesses.add(proc);
-      const stdout = rl.createInterface(proc.stdout);
-      stdout.on('line', async line => {
+      let stdoutBuffer = '';
+      let stderrBuffer = '';
+      const stdoutDecoder = new TextDecoder('utf-8');
+      const stderrDecoder = new TextDecoder('utf-8');
+
+      const flushStderr = () => {
+        if (stderrBuffer.length > 0) {
+          emitter.emit('stderr', { type: 'stderr', value: stderrBuffer });
+        }
+        stderrBuffer = '';
+      };
+      const handleStdoutLine = line => {
+        // A partial stderr message must be delivered before a stdout event.
+        flushStderr();
         try {
           const obj = JSON.parse(line);
           if (
@@ -174,12 +185,45 @@ export class Model {
         } catch (e) {
           emitter.emit('stdout', { type: 'stdout', value: line });
         }
-      });
-      const stderr = rl.createInterface(proc.stderr);
-      stderr.on('line', async line => {
-        emitter.emit('stderr', line);
-      });
-      proc.on('exit', async (c, signal) => {
+      };
+      const handleStdoutChunk = chunk => {
+        stdoutBuffer += stdoutDecoder.decode(chunk, { stream: true });
+        let newline;
+        while ((newline = stdoutBuffer.indexOf('\n')) !== -1) {
+          const line = stdoutBuffer.substring(0, newline);
+          stdoutBuffer = stdoutBuffer.substring(newline + 1);
+          handleStdoutLine(line.endsWith('\r') ? line.slice(0, -1) : line);
+        }
+      };
+      const handleStderrChunk = chunk => {
+        stderrBuffer += stderrDecoder.decode(chunk, { stream: true });
+        let newline;
+        while ((newline = stderrBuffer.indexOf('\n')) !== -1) {
+          const line = stderrBuffer.substring(0, newline);
+          stderrBuffer = stderrBuffer.substring(newline + 1);
+          emitter.emit('stderr', {
+            type: 'stderr',
+            value: line.endsWith('\r') ? line.slice(0, -1) : line,
+          });
+        }
+      };
+      proc.stdout.on('data', handleStdoutChunk);
+      proc.stderr.on('data', handleStderrChunk);
+      proc.on('close', async (c, signal) => {
+        stdoutBuffer += stdoutDecoder.decode();
+        stderrBuffer += stderrDecoder.decode();
+        // readline only emits complete lines. Preserve the old message
+        // format while also delivering trailing output at process exit.
+        if (stderrBuffer.length > 0) {
+          flushStderr();
+        }
+        if (stdoutBuffer.length > 0) {
+          const line = stdoutBuffer.endsWith('\r')
+            ? stdoutBuffer.slice(0, -1)
+            : stdoutBuffer;
+          stdoutBuffer = '';
+          handleStdoutLine(line);
+        }
         childProcesses.delete(proc);
         const exitMessage = {
           type: 'exit',
