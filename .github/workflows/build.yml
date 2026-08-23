@@ -35,12 +35,25 @@ jobs:
           repository: minizinc/libminizinc
           ref: develop
       - name: Download vendor
-        run: ./download_vendor
-        env:
-          MZNARCH: wasm
+        run: |
+          set -eu
+          mkdir -p vendor
+          for dep in gecode chuffed highs cbc; do
+            ver=$(grep -E "^${dep}=" vendor.lock | head -1 | cut -d= -f2-)
+            if [ -z "$ver" ]; then
+              echo "no version pinned for '$dep' in vendor.lock" >&2
+              exit 1
+            fi
+            asset="${dep}-${ver}-wasm32-emscripten.tar.gz"
+            echo "Fetching $asset"
+            curl -fsSL -o "$asset" \
+              "https://github.com/MiniZinc/minizinc-vendor/releases/download/${dep}-${ver}/${asset}"
+            tar -xzf "$asset" -C vendor
+            rm -f "$asset"
+          done
       - name: Get MiniZinc cache key
         id: get-cache-key
-        run: echo "key=minizinc-$(git rev-parse HEAD)-${{ hashFiles('vendor/version.json') }}" >> $GITHUB_OUTPUT
+        run: echo "key=minizinc-$(git rev-parse HEAD)-${{ hashFiles('vendor.lock') }}" >> $GITHUB_OUTPUT
       - name: Cache MiniZinc Build
         id: cache
         uses: actions/cache@v5
