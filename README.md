@@ -206,30 +206,30 @@ For more detailed documentation of all available options and functionality, visi
 
 ### Compiling MiniZinc for WebAssembly
 
-The WebAssembly build of MiniZinc requires [Emscripten](https://emscripten.org/).
+CI downloads `minizinc-compiler-only-wasm32-emscripten.tar.gz` from libminizinc's
+[releases](https://github.com/MiniZinc/libminizinc/releases) (`edge` for the
+development version) rather than building it, which is also the easiest way to get
+one locally.
+
+To build it yourself you need [Emscripten](https://emscripten.org/), at the version
+pinned as `emsdk` in libminizinc's `vendor.lock`: the solver archives are built with
+it, and mixing emscripten versions across static archives is not safe.
 
 ```sh
 # Clone MiniZinc
 git clone https://github.com/MiniZinc/libminizinc minizinc
-
-# Download solvers (or you can build them yourself using emscripten)
 cd minizinc
-MZNARCH=wasm ./download_vendor
 
-# Configure MiniZinc
-emcmake cmake -S . -B build \
-  -DCMAKE_FIND_ROOT_PATH="/" \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DGecode_ROOT="$PWD/vendor/gecode" \
-  -DOsiCBC_ROOT="$PWD/vendor/cbc" \
-  -DCMAKE_PREFIX_PATH="$PWD/vendor/highs/lib/cmake/highs:$PWD/vendor/chuffed/lib/cmake/chuffed" \
-  -DCMAKE_INSTALL_PREFIX="../minizinc-install"
+# Download the solvers built for wasm (requires the gh CLI, authenticated)
+scripts/fetch_vendor.sh wasm32-emscripten gecode cbc chuffed highs
 
-# Build MiniZinc
-cmake --build build --config Release --target install
+# Configure and build, exactly as CI does
+ROOT="$PWD" CMAKE_WRAPPER=emcmake CMAKE_FIND_ROOT_PATH=/ \
+  CMAKE_GENERATOR="Unix Makefiles" EXPECT_DEPS="gecode cbc chuffed highs" \
+  bash scripts/build.sh
 ```
 
-The WebAssembly build of MiniZinc can also be obtained from the [build workflow](https://github.com/MiniZinc/minizinc-js/actions/workflows/build.yml) as the `minizinc` artifact.
+This installs into `minizinc/` (`bin/minizinc.js`, `.wasm` and `.data`).
 
 ### Building MiniZinc JS
 

@@ -4,87 +4,14 @@ on:
   push:
   pull_request:
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * *'
 
 env:
   STABLE: ${{ (github.ref_name == 'stable' || startsWith(github.ref, 'refs/tags/v')) && 'yes' || 'no' }}
 
 jobs:
-  minizinc:
-    name: Build wasm version of MiniZinc
-    runs-on: ubuntu-latest
-    container: emscripten/emsdk
-    outputs:
-      cache-key: ${{ steps.get-cache-key.outputs.key }}
-      cache-hit: ${{ steps.cache.outputs.cache-hit }}
-    steps:
-      - name: Workaround for https://github.com/actions/runner/issues/2033
-        run: |
-          git config --global --add safe.directory $GITHUB_WORKSPACE
-      - name: Checkout latest MiniZinc
-        if: ${{ env.STABLE == 'yes' }}
-        uses: actions/checkout@v6
-        with:
-          repository: minizinc/libminizinc
-          ref: master
-      - name: Checkout edge MiniZinc
-        if: ${{ env.STABLE == 'no' }}
-        uses: actions/checkout@v6
-        with:
-          repository: minizinc/libminizinc
-          ref: develop
-      - name: Download vendor
-        run: |
-          set -eu
-          mkdir -p vendor
-          for dep in gecode chuffed highs cbc; do
-            ver=$(grep -E "^${dep}=" vendor.lock | head -1 | cut -d= -f2-)
-            if [ -z "$ver" ]; then
-              echo "no version pinned for '$dep' in vendor.lock" >&2
-              exit 1
-            fi
-            asset="${dep}-${ver}-wasm32-emscripten.tar.gz"
-            echo "Fetching $asset"
-            curl -fsSL -o "$asset" \
-              "https://github.com/MiniZinc/minizinc-vendor/releases/download/${dep}-${ver}/${asset}"
-            tar -xzf "$asset" -C vendor
-            rm -f "$asset"
-          done
-      - name: Get MiniZinc cache key
-        id: get-cache-key
-        run: echo "key=minizinc-$(git rev-parse HEAD)-${{ hashFiles('vendor.lock') }}" >> $GITHUB_OUTPUT
-      - name: Cache MiniZinc Build
-        id: cache
-        uses: actions/cache@v5
-        with:
-          path: minizinc
-          key: ${{ steps.get-cache-key.outputs.key }}
-      - name: Configure MiniZinc
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          emcmake cmake -S . -B build \
-            -DCMAKE_FIND_ROOT_PATH="/" \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_REF=$GITHUB_RUN_ID \
-            -DGecode_ROOT="$GITHUB_WORKSPACE/vendor/gecode" \
-            -DOsiCBC_ROOT="$GITHUB_WORKSPACE/vendor/cbc" \
-            -DCMAKE_PREFIX_PATH="$GITHUB_WORKSPACE/vendor/highs/lib/cmake/highs:$GITHUB_WORKSPACE/vendor/chuffed/lib/cmake/chuffed" \
-            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/minizinc"
-      - name: Build MiniZinc
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: cmake --build build --config Release --target install -j 2
-      - name: Upload package artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: minizinc
-          path: minizinc/
-
   build:
     name: Build and test minizinc-js
     runs-on: ubuntu-latest
-    needs: [minizinc]
-    if: github.event_name != 'schedule' || needs.minizinc.outputs.cache-hit != 'true'
     env:
       MZN_WASM_DIR: ${{ github.workspace }}/minizinc
       MZN_NODE_BINARY: ${{ github.workspace }}/native/bin/minizinc
@@ -92,18 +19,19 @@ jobs:
       version: ${{ steps.output-version.outputs.version }}
     steps:
       - uses: actions/checkout@v6
-      - name: Cache MiniZinc
-        id: cache
-        uses: actions/cache@v5
-        with:
-          path: minizinc
-          key: ${{ needs.minizinc.outputs.cache-key }}
-      - name: Fetch MiniZinc
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/download-artifact@v8
-        with:
-          name: minizinc
-          path: ${{ github.workspace }}/minizinc
+      - name: Fetch MiniZinc WASM build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          mkdir -p minizinc
+          # No tag => gh picks the latest non-prerelease; edge is the develop build.
+          REF=""
+          [ "$STABLE" = yes ] || REF=edge
+          # shellcheck disable=SC2086 # empty REF must expand to nothing
+          gh release download $REF --repo MiniZinc/libminizinc \
+            --pattern 'minizinc-compiler-only-wasm32-emscripten.tar.gz' --dir .
+          tar -xzf minizinc-compiler-only-wasm32-emscripten.tar.gz -C minizinc
       - name: Fetch latest MiniZinc image
         if: ${{ env.STABLE == 'yes' }}
         uses: docker://minizinc/minizinc:latest
